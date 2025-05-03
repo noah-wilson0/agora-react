@@ -4,6 +4,7 @@ import DebaterStage from '../../common/debaterStage';
 import ChatingPanel from '../../common/chatingPanel';
 import ChatingMessage, { ChatMessage } from '../../common/chatingMessage';
 import ModeratorChat from '../../common/moderatorChat';
+import DebateChatTitleBar from '../../common/debateChatTitleBar';
 
 const debateMessages: ChatMessage[] = [
   { team: 'moderator', username: '사회자', message: '토론이 시작되었습니다. 찬성측부터 발언해주세요.', timestamp: '05:50' },
@@ -29,19 +30,13 @@ const DiscussionRoom: React.FC = () => {
         <DebateArea>
           <DebateLeft>
             <DebateChatBox>
-              <ChatTitleBar>
-                <ChatTeamSide>
-                  <TeamLabel>찬성</TeamLabel>
-                  <TeamCount>({proCount}/{maxCount})</TeamCount>
-                </ChatTeamSide>
-                <ChatPhase>
-                  찬성측 입론 <Timer>5:00</Timer>
-                </ChatPhase>
-                <ChatTeamSide style={{ justifyContent: 'flex-end' }}>
-                  <TeamLabel style={{ color: '#d32f2f' }}>반대</TeamLabel>
-                  <TeamCount>({conCount}/{maxCount})</TeamCount>
-                </ChatTeamSide>
-              </ChatTitleBar>
+              <DebateChatTitleBar
+                proCount={proCount}
+                conCount={conCount}
+                maxCount={maxCount}
+                phaseText={debatePhase}
+                timer="5:00"
+              />
               <ChatScrollArea>
                 <ChatingMessage messages={debateMessages} chatType="debate" />
                 <ModeratorChat message="반론이 시작되었습니다. 찬성측부터 발언해주세요." />
@@ -115,61 +110,6 @@ const DebateChatBox = styled.div`
   flex-direction: column;
   flex: 10 1 0;
   min-height: 0;
-  user-select: none;
-  cursor: default;
-`;
-
-const ChatTitleBar = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 2.5rem;
-  padding-top: 1.2rem;
-  margin-bottom: 0.7rem;
-  user-select: none;
-  cursor: default;
-`;
-
-const ChatTeamSide = styled.div`
-  display: flex;
-  align-items: flex-end;
-  gap: 0.25rem;
-  min-width: 70px;
-  user-select: none;
-  cursor: default;
-`;
-
-const TeamLabel = styled.span`
-  font-size: 1.13rem;
-  color: #388e3c;
-  font-weight: 700;
-  user-select: none;
-  cursor: default;
-`;
-
-const TeamCount = styled.span`
-  font-size: 0.92rem;
-  color: #888;
-  font-weight: 500;
-  margin-left: 0.1rem;
-  user-select: none;
-  cursor: default;
-`;
-
-const ChatPhase = styled.div`
-  font-size: 1.08rem;
-  color: #333;
-  font-weight: 600;
-  text-align: center;
-  flex: 1;
-  user-select: none;
-  cursor: default;
-`;
-
-const Timer = styled.span`
-  font-size: 0.8rem;
-  color: #ff0000;
-  margin-left: 0.5rem;
   user-select: none;
   cursor: default;
 `;
@@ -279,13 +219,5 @@ const SendButton = styled.button`
     background-color: #2456b3;
   }
 `;
-
-const DebatePhase = () => {
-  return (
-    <ChatPhase>
-      찬성측 입론 <Timer>5:00</Timer>
-    </ChatPhase>
-  );
-};
 
 export default DiscussionRoom; 
