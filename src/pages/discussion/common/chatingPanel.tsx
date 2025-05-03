@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
 import styled from '@emotion/styled';
 import ChatingMessage, { ChatMessage } from './chatingMessage';
-import teamChatIcon from '../../assets/temChat.png';
-import openChatIcon from '../../assets/openChat.png';
-import aiChatIcon from '../../assets/aiChat.png';
+import teamChatIcon from '../../../assets/temChat.png';
+import openChatIcon from '../../../assets/openChat.png';
+import aiChatIcon from '../../../assets/aiChat.png';
 
 type ChatType = 'team' | 'free' | 'ai';
 
@@ -13,18 +13,14 @@ interface StyledProps {
 
 const myUsername = '나';
 
-const sampleMessages: ChatMessage[] = [
-  { team: '찬성', username: '찬성측 000', message: '내말이 다 맞다', timestamp: '05:49' },
-  { team: '반대', username: '반대측 001', message: '응 아니야', timestamp: '05:50' },
-];
 
 const initialTeamMessages: ChatMessage[] = [
-  { team: '찬성', username: '유저1', message: '팀 채팅 예시(상대)', timestamp: '10:01' },
-  { team: '반대', username: '유저2', message: '팀 채팅 예시(상대2)', timestamp: '10:02' },
+  { team: '찬성', username: '유저1', message: '팀 채팅 예시(내 메시지, 왼쪽, 상대)', timestamp: '10:01' },
+  { team: '반대', username: '유저2', message: '팀 채팅 예시(내 메시지, 왼쪽, 상대)', timestamp: '10:02' },
   { team: '찬성', username: myUsername, message: '팀 채팅 예시(내 메시지, 오른쪽)', timestamp: '10:03', isMe: true },
 ];
 const initialFreeMessages: ChatMessage[] = [
-  { team: '찬성', username: '유저3', message: '자유 채팅 예시(상대)', timestamp: '10:04' },
+  { team: '찬성', username: '유저3', message: '자유 채팅 예시(내 메시지, 왼쪽, 상대)', timestamp: '10:04' },
   { team: '찬성', username: myUsername, message: '자유 채팅 예시(내 메시지, 오른쪽)', timestamp: '10:05', isMe: true },
 ];
 

@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from '@emotion/styled';
+import ModeratorChat from '../../common/moderatorChat';
 
 export interface ChatMessage {
-  team: '찬성' | '반대';
+  team: '찬성' | '반대' | 'moderator';
   username: string;
   message: string;
   timestamp: string;
@@ -21,18 +22,15 @@ interface MessageProps extends ChatMessage {
 }
 
 interface StyledProps {
-  team: '찬성' | '반대';
+  team: '찬성' | '반대' | 'moderator';
   isMe?: boolean;
   isRight?: boolean;
 }
 
 const Message: React.FC<MessageProps> = ({ team, username, message, timestamp, isMe, chatType }) => {
-  // 토론 채팅: 찬성측(초록) 왼쪽, 반대측(빨강) 오른쪽
-  // 팀/자유 채팅: 내 메시지 오른쪽, 남 메시지 왼쪽
-  // AI/기타: 모두 왼쪽
   let isRight = false;
   if (chatType === 'debate') {
-    isRight = team === '반대'; // 반대측(빨강)은 오른쪽, 찬성측(초록)은 왼쪽
+    isRight = team === '반대';
   } else if (chatType === 'team' || chatType === 'free') {
     isRight = !!isMe;
   } else {
@@ -51,11 +49,13 @@ const Message: React.FC<MessageProps> = ({ team, username, message, timestamp, i
   );
 };
 
-const ChatingMessage: React.FC<ChatingMessageProps> = ({ messages = [], chatType }) => {
+const DebateChatingMessage: React.FC<ChatingMessageProps> = ({ messages = [], chatType }) => {
   return (
     <Container>
       {messages.map((msg, index) => (
-        <Message key={index} {...msg} chatType={chatType} />
+        msg.team === 'moderator'
+          ? <ModeratorChat key={index} message={msg.message} />
+          : <Message key={index} {...msg} chatType={chatType} />
       ))}
     </Container>
   );
@@ -69,7 +69,7 @@ const Container = styled.div`
   cursor: default;
 `;
 
-const MessageContainer = styled.div<{ isRight?: boolean; team: '찬성' | '반대' }>`
+const MessageContainer = styled.div<{ isRight?: boolean; team: '찬성' | '반대' | 'moderator' }>`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -79,7 +79,7 @@ const MessageContainer = styled.div<{ isRight?: boolean; team: '찬성' | '반�
   cursor: default;
 `;
 
-const MessageContent = styled.div<{ isRight?: boolean; team: '찬성' | '반대' }>`
+const MessageContent = styled.div<{ isRight?: boolean; team: '찬성' | '반대' | 'moderator' }>`
   display: flex;
   flex-direction: column;
   align-items: ${({ isRight }) => (isRight ? 'flex-end' : 'flex-start')};
@@ -97,27 +97,20 @@ const Username = styled.span<{ isRight?: boolean }>`
   cursor: default;
 `;
 
-const MessageBubble = styled.div<{ isRight?: boolean; team: '찬성' | '반대'; chatType?: ChatType; isMe?: boolean }>`
+const MessageBubble = styled.div<{ isRight?: boolean; team: '찬성' | '반대' | 'moderator'; chatType?: ChatType; isMe?: boolean }>`
   position: relative;
-  padding: 0.5rem 1.1rem;
-  background-color: ${({ team, chatType, isMe }) => {
-    if (chatType === 'debate') {
-      return team === '찬성' ? '#e8f5e9' : '#ffebee';
-    }
-    if (chatType === 'team' || chatType === 'free') {
-      return isMe ? '#e3f0ff' : '#f0f0f0';
-    }
-    return '#f0f0f0';
-  }};
-  color: #222;
+  padding: 0.7rem 1rem;
   border-radius: 1rem;
-  max-width: 340px;
-  min-width: 60px;
+  font-size: 0.95rem;
+  line-height: 1.4;
   word-break: break-word;
-  font-size: 1.05rem;
-  line-height: 1.2;
-  margin-top: 0.1rem;
-  ${({ isRight }) => isRight && 'margin-left: auto;'}
+  background: ${props => props.team === '찬성' ? '#e8f5e9' : props.team === '반대' ? '#ffebee' : '#fff'};
+  color: ${props => props.team === '찬성' ? '#2e7d32' : props.team === '반대' ? '#c62828' : '#000'};
+  ${props => props.isMe && `
+    background: #e3f2fd;
+    color: #1565c0;
+  `}
+  max-width: 90%;
   user-select: none;
   cursor: default;
 `;
@@ -132,4 +125,4 @@ const Timestamp = styled.span<{ isRight?: boolean }>`
   cursor: default;
 `;
 
-export default ChatingMessage; 
+export default DebateChatingMessage; 

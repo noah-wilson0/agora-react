@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { ChatMessage } from './chatingMessage';
+import DebateChatingMessage, { ChatMessage } from './debateChatingMessage';
 
 interface DebateChatingPanelProps {
   messages: ChatMessage[];
@@ -14,15 +14,7 @@ function getNickname(username: string) {
 const DebateChatingPanel: React.FC<DebateChatingPanelProps> = ({ messages }) => {
   return (
     <Container>
-      {messages.map((msg, idx) => (
-        <MessageContainer key={idx}>
-          <Nickname team={msg.team}>{getNickname(msg.username)}</Nickname>
-          <MessageBubble team={msg.team}>
-            {msg.message}
-            <Timestamp>{msg.timestamp}</Timestamp>
-          </MessageBubble>
-        </MessageContainer>
-      ))}
+      <DebateChatingMessage messages={messages} chatType="debate" />
     </Container>
   );
 };

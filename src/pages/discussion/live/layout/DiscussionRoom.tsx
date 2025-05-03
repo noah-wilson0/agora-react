@@ -1,14 +1,16 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import DebaterStage from '../layout/debaterStage';
-import ChatingPanel from '../fragments/chatingPanel';
-import ChatingMessage, { ChatMessage } from '../fragments/chatingMessage';
+import DebaterStage from '../../common/debaterStage';
+import ChatingPanel from '../../common/chatingPanel';
+import ChatingMessage, { ChatMessage } from '../../common/chatingMessage';
+import ModeratorChat from '../../common/moderatorChat';
 
 const debateMessages: ChatMessage[] = [
-  { team: '찬성', username: '찬성측 000', message: '찬성측 첫 메시지(왼쪽)', timestamp: '05:49' },
-  { team: '반대', username: '반대측 001', message: '반대측 첫 메시지(오른쪽)', timestamp: '05:50' },
-  { team: '찬성', username: '찬성측 002', message: '찬성측 두 번째 메시지(왼쪽)', timestamp: '05:51' },
-  { team: '반대', username: '반대측 003', message: '반대측 두 번째 메시지(오른쪽)', timestamp: '05:52' },
+  { team: 'moderator', username: '사회자', message: '토론이 시작되었습니다. 찬성측부터 발언해주세요.', timestamp: '05:50' },
+  { team: '찬성', username: '찬성측 000', message: '찬성측 첫 메시지(왼쪽)11111111111111111111111111111111111111111111111111111111111', timestamp: '05:49' },
+  { team: '반대', username: '반대측 001', message: '반대측 첫 메시지(오른쪽)', timestamp: '05:51' },
+  { team: '찬성', username: '찬성측 002', message: '찬성측 두 번째 메시지(왼쪽)', timestamp: '05:52' },
+  { team: '반대', username: '반대측 003', message: '반대측 두 번째 메시지(오른쪽)', timestamp: '05:53' },
 ];
 
 const debateInfo = '미드는 황족 라인이다';
@@ -32,7 +34,9 @@ const DiscussionRoom: React.FC = () => {
                   <TeamLabel>찬성</TeamLabel>
                   <TeamCount>({proCount}/{maxCount})</TeamCount>
                 </ChatTeamSide>
-                <ChatPhase>{debatePhase}</ChatPhase>
+                <ChatPhase>
+                  찬성측 입론 <Timer>5:00</Timer>
+                </ChatPhase>
                 <ChatTeamSide style={{ justifyContent: 'flex-end' }}>
                   <TeamLabel style={{ color: '#d32f2f' }}>반대</TeamLabel>
                   <TeamCount>({conCount}/{maxCount})</TeamCount>
@@ -40,6 +44,7 @@ const DiscussionRoom: React.FC = () => {
               </ChatTitleBar>
               <ChatScrollArea>
                 <ChatingMessage messages={debateMessages} chatType="debate" />
+                <ModeratorChat message="반론이 시작되었습니다. 찬성측부터 발언해주세요." />
               </ChatScrollArea>
               <ChatInput>
                 <Input placeholder="메시지를 입력하세요" />
@@ -68,7 +73,10 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f8f9fa;
+  background: #f0f2f5;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
 `;
 
 const Content = styled.div`
@@ -99,7 +107,7 @@ const DebateLeft = styled.div`
 `;
 
 const DebateChatBox = styled.div`
-  background: #fff;
+  background: #ffffff;
   border-radius: 1.1rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   padding: 0 1.5rem 1.5rem 1.5rem;
@@ -158,6 +166,14 @@ const ChatPhase = styled.div`
   cursor: default;
 `;
 
+const Timer = styled.span`
+  font-size: 0.8rem;
+  color: #ff0000;
+  margin-left: 0.5rem;
+  user-select: none;
+  cursor: default;
+`;
+
 const ChatScrollArea = styled.div`
   flex: 1 1 0;
   min-height: 0;
@@ -173,7 +189,7 @@ const DebateInfoSpacer = styled.div`
 `;
 
 const DebateInfoBox = styled.div`
-  background: #fff;
+  background: #ffffff;
   border-radius: 0.8rem;
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   padding: 1.1rem 1.5rem 1.3rem 1.5rem;
@@ -263,5 +279,13 @@ const SendButton = styled.button`
     background-color: #2456b3;
   }
 `;
+
+const DebatePhase = () => {
+  return (
+    <ChatPhase>
+      찬성측 입론 <Timer>5:00</Timer>
+    </ChatPhase>
+  );
+};
 
 export default DiscussionRoom; 

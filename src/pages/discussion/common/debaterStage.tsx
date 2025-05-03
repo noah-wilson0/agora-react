@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from '@emotion/styled';
 
-import logoImg from '../../assets/logo.png';
-import audienceImg from '../../assets/audience.png';
+import logoImg from '../../../assets/logo.png';
+import audienceImg from '../../../assets/audience.png';
 
 interface DebaterStageProps {
   participantCount: number;
@@ -74,8 +74,7 @@ const ExitButton = styled.button`
   }
 `;
 
-const Logo = styled.img`
-  height: 38px;
+const Logo = styled.img`  height: 38px;
   background: #ddd;
   border-radius: 8px;
   padding: 0 2.5rem;
