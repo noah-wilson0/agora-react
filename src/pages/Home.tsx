@@ -17,6 +17,9 @@ const Home: React.FC = () => {
       <EnterButton onClick={() => navigate('/discussion/vote')} style={{ marginTop: '1rem', backgroundColor: '#34c759' }}>
         토론 투표방 입장
       </EnterButton>
+      <EnterButton onClick={() => navigate('/main')} style={{ marginTop: '1rem', backgroundColor: '#007AFF' }}>
+        토론 메인 화면
+      </EnterButton>
     </Container>
   );
 };
