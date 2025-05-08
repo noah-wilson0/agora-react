@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { FiSearch } from 'react-icons/fi';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
 // 더미 데이터
 const liveDebates = [
@@ -20,22 +21,46 @@ const topContributors = [
   { name: '최길동', icon: '🔶' },
 ];
 
+const breakpoints = {
+  tablet: '@media (max-width: 1024px)',
+  mobile: '@media (max-width: 768px)',
+  small: '@media (max-width: 480px)',
+};
+
 const MainPage: React.FC = () => {
   // 슬라이드 인덱스 예시 (실제 구현 시 useState로 관리)
   const slideIndex = 0;
   const totalSlides = 3;
 
+  // 검색어 상태 및 라우터
+  const [search, setSearch] = useState('');
+  const navigate = useNavigate();
+  const handleSearch = () => {
+    if (search.trim()) {
+      navigate(`/search?keyword=${encodeURIComponent(search)}`);
+    }
+  };
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') handleSearch();
+  };
+
   return (
     <Wrapper>
       <Header>
         <LogoBox>
-          <LogoText>AGORA</LogoText>
+          <LogoText as="button" onClick={() => navigate('/main')}>AGORA</LogoText>
         </LogoBox>
         <HeaderRight>
           <HeaderTop>
             <SearchArea>
               <FiSearch size={20} style={{ marginRight: '0.5rem', color: '#888' }} />
-              <SearchBar placeholder="궁금한 주제를 찾아보세요" />
+              <SearchBar
+                placeholder="궁금한 주제를 찾아보세요"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+              <SearchBtn onClick={handleSearch}>검색</SearchBtn>
             </SearchArea>
             <AuthBox>
               <AuthBtn>로그인</AuthBtn>
@@ -197,22 +222,28 @@ const Header = styled.header`
   background: ${CARD_BG};
   border-bottom: 2px solid ${POINT_BG};
   padding: 0.5rem 0 0 1.8rem;
+  ${breakpoints.tablet} {
+    flex-direction: column;
+    padding: 0.5rem 0.5rem 0 0.5rem;
+  }
 `;
 const LogoBox = styled.div`
   width: 130px;
   min-width: 110px;
   height: 60px;
-  background: ${POINT_BG};
+  
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0.5rem 0 0.5rem 0;
 `;
+//background: ${POINT_BG};
 const LogoText = styled.div`
-  font-size: 2.3rem;
+  font-size: 2rem;
   font-weight: 900;
   color: ${MAIN_COLOR};
+  background: white;
   letter-spacing: 0.1em;
 `;
 const HeaderRight = styled.div`
@@ -225,15 +256,28 @@ const HeaderRight = styled.div`
 const HeaderTop = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: left;
   padding: 0.2rem 0 0.1rem 0;
+  padding-left : 2rem;
   gap: 1rem;
+  ${breakpoints.tablet} {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding-left: 0;
+  }
 `;
 const HeaderBottom = styled.div`
   width: 100%;
   display: flex;
-  justify-content: center;
+  padding-left : 2rem;
+  justify-content: left;
   background: ${CARD_BG};
+  ${breakpoints.tablet} {
+    padding-left: 0;
+    overflow-x: auto;
+    font-size: 0.95rem;
+  }
 `;
 const SearchArea = styled.div`
   display: flex;
@@ -257,10 +301,31 @@ const SearchBar = styled.input`
     color: #888;
   }
 `;
+const SearchBtn = styled.button`
+  background: none;
+  border: none;
+  color: ${MAIN_COLOR};
+  white-space: nowrap;
+  font-size: 1rem;
+  padding: 0.4rem 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: 0.2rem;
+  transition: background 0.15s, color 0.15s;
+  &:hover {
+    background: ${POINT_BG};
+    color: ${MAIN_COLOR};
+  }
+`;
 const Nav = styled.nav`
   display: flex;
   gap: 1.2rem;
   padding: 0.5rem 0 0.5rem 0;
+  ${breakpoints.mobile} {
+    gap: 0.5rem;
+    font-size: 0.95rem;
+  }
 `;
 const NavItem = styled.div`
   font-size: 1.08rem;
@@ -304,6 +369,11 @@ const MainContent = styled.div`
   width: 100%;
   padding: 1rem 1.8rem 0 1.8rem;
   gap: 1.8rem;
+  ${breakpoints.tablet} {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem 0.7rem 0 0.7rem;
+  }
 `;
 const LeftContent = styled.div`
   flex: 3;
@@ -320,6 +390,12 @@ const RightContent = styled.div`
   min-width: 180px;
   max-width: 240px;
   height: fit-content;
+  ${breakpoints.tablet} {
+    max-width: 100%;
+    min-width: 0;
+    margin-top: 1.5rem;
+    width: 100%;
+  }
 `;
 const Section = styled.section`
   background: ${CARD_BG};
@@ -397,6 +473,9 @@ const CardList = styled.div`
   display: flex;
   gap: 1.2rem;
   flex-wrap: wrap;
+  ${breakpoints.mobile} {
+    gap: 0.5rem;
+  }
 `;
 const DebateCard = styled.div`
   background: ${POINT_BG};
@@ -409,6 +488,11 @@ const DebateCard = styled.div`
   gap: 0.4rem;
   box-shadow: 0 1px 8px rgba(0,122,255,0.07);
   margin-bottom: 0.7rem;
+  ${breakpoints.mobile} {
+    min-width: 100%;
+    flex-basis: 100%;
+    padding: 0.7rem 0.5rem;
+  }
 `;
 const CardTop = styled.div`
   display: flex;
@@ -450,6 +534,10 @@ const Footer = styled.footer`
   text-align: left;
   padding: 0.7rem 2.2rem;
   margin-top: 1.5rem;
+  ${breakpoints.mobile} {
+    padding: 0.7rem 1rem;
+    font-size: 1rem;
+  }
 `;
 // 실시간 인기 토론 슬라이더 스타일
 const LiveDebateSlider = styled.div`

@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import VotePage from './pages/debate/vote/layout/VotePage';
 import DiscussionRoom from './pages/debate/live/layout/DebateLivePage';
 import MainPage from './pages/main/MainPage';
+import SearchResultPage from './pages/main/SearchResultPage';
 import './App.css'
 
 const App: React.FC = () => {
@@ -14,6 +15,7 @@ const App: React.FC = () => {
         <Route path="/main" element={<MainPage />} />
         <Route path="/discussion" element={<DiscussionRoom />} />
         <Route path="/discussion/vote" element={<VotePage />} />
+        <Route path="/search" element={<SearchResultPage />} />
         <Route path="*" element={<Home />} />
       </Routes>
     </Router>
