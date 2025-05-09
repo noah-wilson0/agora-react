@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import DebateChatingMessage, { ChatMessage } from './debateChatingMessage';
+import ChatInputBox from './ChatInputBox';
 
 interface DebateChatingPanelProps {
   messages: ChatMessage[];
@@ -15,6 +16,7 @@ const DebateChatingPanel: React.FC<DebateChatingPanelProps> = ({ messages }) => 
   return (
     <Container>
       <DebateChatingMessage messages={messages} chatType="debate" />
+      <ChatInputBox />
     </Container>
   );
 };

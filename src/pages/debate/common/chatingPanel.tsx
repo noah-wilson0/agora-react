@@ -1,9 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
 import ChatingMessage, { ChatMessage } from './chatingMessage';
 import teamChatIcon from '../../../assets/temChat.png';
 import openChatIcon from '../../../assets/openChat.png';
 import aiChatIcon from '../../../assets/aiChat.png';
+import ChatInputBox from './ChatInputBox';
 
 type ChatType = 'team' | 'free' | 'ai';
 
@@ -48,6 +49,9 @@ const ChatingPanel: React.FC = () => {
   const resizingIndex = useRef<number | null>(null);
   const startY = useRef<number>(0);
   const startHeights = useRef<number[]>([]);
+  const [teamMessages, setTeamMessages] = useState<ChatMessage[]>(initialTeamMessages);
+  const [freeMessages, setFreeMessages] = useState<ChatMessage[]>(initialFreeMessages);
+  const [aiMessages, setAiMessages] = useState<ChatMessage[]>([]);
 
   // 닫힌 채팅창 목록
   const closedChats = ALL_CHATS.filter((type) => !openChats.includes(type));
@@ -130,6 +134,45 @@ const ChatingPanel: React.FC = () => {
     });
   }, [openChats.length]);
 
+  const handleSendTeam = (msg: string) => {
+    setTeamMessages(prev => [
+      ...prev,
+      {
+        team: '찬성', // 실제 팀 정보로 교체 필요
+        username: myUsername,
+        message: msg,
+        timestamp: new Date().toLocaleTimeString().slice(0,5),
+        isMe: true,
+      }
+    ]);
+  };
+
+  const handleSendFree = (msg: string) => {
+    setFreeMessages(prev => [
+      ...prev,
+      {
+        team: '찬성', // 실제 팀 정보로 교체 필요
+        username: myUsername,
+        message: msg,
+        timestamp: new Date().toLocaleTimeString().slice(0,5),
+        isMe: true,
+      }
+    ]);
+  };
+
+  const handleSendAi = (msg: string) => {
+    setAiMessages(prev => [
+      ...prev,
+      {
+        team: '찬성', // 실제 팀 정보로 교체 필요
+        username: myUsername,
+        message: msg,
+        timestamp: new Date().toLocaleTimeString().slice(0,5),
+        isMe: true,
+      }
+    ]);
+  };
+
   return (
     <Container>
       <ChatTypeSelector>
@@ -146,37 +189,48 @@ const ChatingPanel: React.FC = () => {
         ))}
       </ChatTypeSelector>
       <VerticalSplitArea id="chatting-panel-vertical">
-        {openChats.map((type, i) => (
-          <React.Fragment key={type}>
-            <ChatBox style={{ height: `calc(${heights[i]}% - ${(openChats.length-1)*8/openChats.length}px)` }}>
-              <ChatBoxHeader>
-                <ChatBoxTitle>
-                  <IconImgSmall src={chatIcons[type]} alt={type} />
-                  <ChatBoxTitleText>{chatTitles[type]}</ChatBoxTitleText>
-                </ChatBoxTitle>
-                <CloseBtn onClick={() => closeChat(type)} title="닫기">×</CloseBtn>
-              </ChatBoxHeader>
-              <ChatContainer>
-                {type === 'team' && (
-                  <ChatingMessage messages={initialTeamMessages} chatType="team" />
-                )}
-                {type === 'free' && (
-                  <ChatingMessage messages={initialFreeMessages} chatType="free" />
-                )}
-                {type === 'ai' && (
-                  <ChatingMessage messages={[]} chatType="ai" />
-                )}
-              </ChatContainer>
-              <ChatInput>
-                <Input placeholder="메시지를 입력하세요" />
-                <SendButton>전송</SendButton>
-              </ChatInput>
-            </ChatBox>
-            {i < openChats.length - 1 && (
-              <ResizerBar onMouseDown={(e) => onResizerMouseDown(i, e)} />
-            )}
-          </React.Fragment>
-        ))}
+        {openChats.map((type, i) => {
+          // 각 채팅창별로 스크롤 ref 생성
+          const scrollRef = useRef<HTMLDivElement>(null);
+          // 해당 채팅창의 메시지 배열
+          const messages = type === 'team' ? teamMessages : type === 'free' ? freeMessages : aiMessages;
+          // 메시지 변경 시 스크롤 아래로 이동
+          useEffect(() => {
+            if (scrollRef.current) {
+              scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+            }
+          }, [messages]);
+          return (
+            <React.Fragment key={type}>
+              <ChatBox style={{ height: `calc(${heights[i]}% - ${(openChats.length-1)*8/openChats.length}px)` }}>
+                <ChatBoxHeader>
+                  <ChatBoxTitle>
+                    <IconImgSmall src={chatIcons[type]} alt={type} />
+                    <ChatBoxTitleText>{chatTitles[type]}</ChatBoxTitleText>
+                  </ChatBoxTitle>
+                  <CloseBtn onClick={() => closeChat(type)} title="닫기">×</CloseBtn>
+                </ChatBoxHeader>
+                <ChatContainer ref={scrollRef}>
+                  {type === 'team' && (
+                    <ChatingMessage messages={teamMessages} chatType="team" />
+                  )}
+                  {type === 'free' && (
+                    <ChatingMessage messages={freeMessages} chatType="free" />
+                  )}
+                  {type === 'ai' && (
+                    <ChatingMessage messages={aiMessages} chatType="ai" />
+                  )}
+                </ChatContainer>
+                {type === 'team' && <ChatInputBox onSend={handleSendTeam} />}
+                {type === 'free' && <ChatInputBox onSend={handleSendFree} />}
+                {type === 'ai' && <ChatInputBox onSend={handleSendAi} />}
+              </ChatBox>
+              {i < openChats.length - 1 && (
+                <ResizerBar onMouseDown={(e) => onResizerMouseDown(i, e)} />
+              )}
+            </React.Fragment>
+          );
+        })}
       </VerticalSplitArea>
     </Container>
   );
@@ -299,42 +353,6 @@ const ChatContainer = styled.div`
   background: #f8f9fa;
   display: flex;
   flex-direction: column;
-`;
-
-const ChatInput = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem 0.7rem 1rem;
-  border-top: 1.5px solid #e0e0e0;
-  background: #f8f9fa;
-`;
-
-const Input = styled.input`
-  flex: 1;
-  padding: 0.4rem 0.7rem;
-  border: 1.5px solid #ddd;
-  border-radius: 6px;
-  font-size: 0.97rem;
-  background: #fff;
-  &:focus {
-    outline: none;
-    border-color: #407BFF;
-  }
-`;
-
-const SendButton = styled.button`
-  padding: 0.4rem 1rem;
-  border: none;
-  border-radius: 6px;
-  background-color: #407BFF;
-  color: white;
-  font-size: 0.97rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
-  &:hover {
-    background-color: #2456b3;
-  }
 `;
 
 export default ChatingPanel; 
