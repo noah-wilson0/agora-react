@@ -41,7 +41,6 @@ const chatTooltips: Record<ChatType, string> = chatTitles;
 
 const ALL_CHATS: ChatType[] = ['free', 'team', 'ai'];
 
-const DEFAULT_HEIGHTS = [33, 33, 34]; // 3개 열릴 때 비율(%)
 
 const ChatingPanel: React.FC = () => {
   const [openChats, setOpenChats] = useState<ChatType[]>(['free', 'team']);
@@ -111,8 +110,7 @@ const ChatingPanel: React.FC = () => {
     const minH = 60;
     if (h1 < minH) { h2 -= (minH - h1); h1 = minH; }
     if (h2 < minH) { h1 -= (minH - h2); h2 = minH; }
-    const percent1 = (h1 / panelHeight) * total / (h1 + h2) * total;
-    const percent2 = (h2 / panelHeight) * total / (h1 + h2) * total;
+
     const newHeights = [...startHeights.current];
     newHeights[idx] = (h1 / panelHeight) * 100;
     newHeights[idx + 1] = (h2 / panelHeight) * 100;

@@ -4,7 +4,7 @@ import DebaterStage from '../../common/debaterStage';
 import ChatingPanel from '../../common/chatingPanel';
 import DebateChatingPanel from '../fragments/debateChatingPanel';
 import { ChatMessage } from '../../common/debateChatingMessage';
-import ModeratorChat from '../../common/moderatorChat';
+
 import DebateChatTitleBar from '../../common/debateChatTitleBar';
 
 export const debateMessages: ChatMessage[] = [

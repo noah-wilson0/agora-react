@@ -119,36 +119,7 @@ const DebateInfoSpacer = styled.div`
   flex-grow: 0;
 `;
 
-const InfoTitle = styled.div`
-  font-size: 0.92rem;
-  color: #888;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.01em;
-  display: flex;
-  flex-direction: column;
-  user-select: none;
-  cursor: default;
-`;
 
-const InfoDivider = styled.div`
-  width: 100%;
-  height: 1px;
-  background: #e0e0e0;
-  margin-top: 0.4rem;
-  user-select: none;
-  cursor: default;
-`;
-
-const InfoContent = styled.div`
-  font-size: 1.08rem;
-  color: #333;
-  min-height: 80px;
-  display: flex;
-  align-items: center;
-  user-select: none;
-  cursor: default;
-`;
 
 const ChatingPanelWrapper = styled.div`
   width: 340px;
