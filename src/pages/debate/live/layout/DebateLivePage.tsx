@@ -2,16 +2,19 @@ import React from 'react';
 import styled from '@emotion/styled';
 import DebaterStage from '../../common/debaterStage';
 import ChatingPanel from '../../common/chatingPanel';
-import ChatingMessage, { ChatMessage } from '../../common/chatingMessage';
+import DebateChatingPanel from '../fragments/debateChatingPanel';
+import { ChatMessage } from '../../common/debateChatingMessage';
 import ModeratorChat from '../../common/moderatorChat';
 import DebateChatTitleBar from '../../common/debateChatTitleBar';
 
-const debateMessages: ChatMessage[] = [
+export const debateMessages: ChatMessage[] = [
   { team: 'moderator', username: '사회자', message: '토론이 시작되었습니다. 찬성측부터 발언해주세요.', timestamp: '05:50' },
   { team: '찬성', username: '찬성측 000', message: '찬성측 첫 메시지(왼쪽)11111111111111111111111111111111111111111111111111111111111', timestamp: '05:49' },
   { team: '반대', username: '반대측 001', message: '반대측 첫 메시지(오른쪽)', timestamp: '05:51' },
   { team: '찬성', username: '찬성측 002', message: '찬성측 두 번째 메시지(왼쪽)', timestamp: '05:52' },
   { team: '반대', username: '반대측 003', message: '반대측 두 번째 메시지(오른쪽)', timestamp: '05:53' },
+  { team: 'moderator', username: '사회자자', message: '반론이 시작되었습니다. 찬성측부터 발언해주세요.', timestamp: '05:54' }
+
 ];
 
 const debateInfo = '미드는 황족 라인이다';
@@ -38,13 +41,8 @@ const DiscussionRoom: React.FC = () => {
                 timer="5:00"
               />
               <ChatScrollArea>
-                <ChatingMessage messages={debateMessages} chatType="debate" />
-                <ModeratorChat message="반론이 시작되었습니다. 찬성측부터 발언해주세요." />
+                <DebateChatingPanel />
               </ChatScrollArea>
-              <ChatInput>
-                <Input placeholder="메시지를 입력하세요" />
-                <SendButton>전송</SendButton>
-              </ChatInput>
             </DebateChatBox>
             <DebateInfoSpacer />
             <DebateInfoBox>
@@ -182,42 +180,6 @@ const ChatingPanelWrapper = styled.div`
   flex-direction: column;
   background: #f8f9fa;
   overflow-y: hidden;
-`;
-
-const ChatInput = styled.div`
-  display: flex;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem 0.7rem 1rem;
-  border-top: 1.5px solid #e0e0e0;
-  background: #f8f9fa;
-`;
-
-const Input = styled.input`
-  flex: 1;
-  padding: 0.4rem 0.7rem;
-  border: 1.5px solid #ddd;
-  border-radius: 6px;
-  font-size: 0.97rem;
-  background: #fff;
-  &:focus {
-    outline: none;
-    border-color: #407BFF;
-  }
-`;
-
-const SendButton = styled.button`
-  padding: 0.4rem 1rem;
-  border: none;
-  border-radius: 6px;
-  background-color: #407BFF;
-  color: white;
-  font-size: 0.97rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
-  &:hover {
-    background-color: #2456b3;
-  }
 `;
 
 export default DiscussionRoom; 

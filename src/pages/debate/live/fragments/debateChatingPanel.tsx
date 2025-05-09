@@ -1,21 +1,57 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
 import ModeratorChat from '../../common/moderatorChat';
-import DebateChatingMessage from '../../common/debateChatingMessage';
-
-interface DebateChatingPanelProps {
-  messages: ChatMessage[];
-}
-
+import DebateChatingMessage, { ChatMessage } from '../../common/debateChatingMessage';
+import ChatInputBox from '../../common/ChatInputBox';
+import { debateMessages as initialMessages } from '../layout/DebateLivePage';
+/**
+ * TODO: 백엔드 연동 전까지는 사용자가 "team: message" 형식으로 입력하면,
+ * team 값을 파싱해서 team이 '찬성'이면 왼쪽, '반대'면 오른쪽에 말풍선이 생성되도록 구현됨
+ * 그냥 채팅을 입력하면 왼쪽에 말풍선이 생성됨
+ */
 // 팀명(찬성측/반대측) 제거 함수
 function getNickname(username: string) {
   return username.replace(/^(찬성|반대)측\s*/, '');
 }
 
-const DebateChatingPanel: React.FC<DebateChatingPanelProps> = ({ messages }) => {
+const DebateChatingPanel: React.FC = () => {
+  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // 입력값에서 team 파싱 후 메시지 추가
+  const handleSend = (msg: string) => {
+    const match = msg.match(/^(찬성|반대)\s*:\s*(.*)$/);
+    let team: '찬성' | '반대' = '찬성';
+    let message = msg;
+    if (match) {
+      team = match[1] as '찬성' | '반대';
+      message = match[2];
+    }
+    setMessages(prev => [
+      ...prev,
+      {
+        team,
+        username: team === '찬성' ? '찬성측 000' : '반대측 001',
+        message,
+        timestamp: new Date().toLocaleTimeString().slice(0,5),
+        isMe: true,
+      }
+    ]);
+  };
+
+  // 메시지 변경 시 스크롤 아래로 이동
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
     <Container>
-      <DebateChatingMessage messages={messages} chatType="debate" />
+      <MessageArea ref={scrollRef}>
+        <DebateChatingMessage messages={messages} chatType="debate" />
+      </MessageArea>
+      <ChatInputBox onSend={handleSend} />
     </Container>
   );
 };
@@ -23,7 +59,16 @@ const DebateChatingPanel: React.FC<DebateChatingPanelProps> = ({ messages }) => 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
+  height: 100%;
+`;
+
+const MessageArea = styled.div`
+  flex: 1 1 0;
+  overflow-y: auto;
+  min-height: 0;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
 `;
 
 const MessageContainer = styled.div`
