@@ -6,24 +6,32 @@ interface DebateChatTitleBarProps {
   conCount: number;
   maxCount: number;
   phaseText: string;
-  timer: string;
+  timerSec: number; // 타이머 초를 직접 전달받음
 }
 
-const DebateChatTitleBar: React.FC<DebateChatTitleBarProps> = ({ proCount, conCount, maxCount, phaseText, timer }) => (
-  <BarWrapper>
-    <ChatTeamSide>
-      <TeamLabel team="pro">찬성</TeamLabel>
-      <TeamCount>({proCount}/{maxCount})</TeamCount>
-    </ChatTeamSide>
-    <ChatPhase>
-      {phaseText} <Timer>{timer}</Timer>
-    </ChatPhase>
-    <ChatTeamSide style={{ justifyContent: 'flex-end' }}>
-      <TeamLabel team="con">반대</TeamLabel>
-      <TeamCount>({conCount}/{maxCount})</TeamCount>
-    </ChatTeamSide>
-  </BarWrapper>
-);
+function formatTimer(sec: number) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+const DebateChatTitleBar: React.FC<DebateChatTitleBarProps> = ({ proCount, conCount, maxCount, phaseText, timerSec }) => {
+  return (
+    <BarWrapper>
+      <ChatTeamSide>
+        <TeamLabel team="pro">찬성</TeamLabel>
+        <TeamCount>({proCount}/{maxCount})</TeamCount>
+      </ChatTeamSide>
+      <ChatPhase>
+        {phaseText} <Timer>{formatTimer(timerSec)}</Timer>
+      </ChatPhase>
+      <ChatTeamSide style={{ justifyContent: 'flex-end' }}>
+        <TeamLabel team="con">반대</TeamLabel>
+        <TeamCount>({conCount}/{maxCount})</TeamCount>
+      </ChatTeamSide>
+    </BarWrapper>
+  );
+};
 
 const BarWrapper = styled.div`
   display: flex;

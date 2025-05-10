@@ -1,24 +1,95 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
-import ModeratorChat from '../../common/moderatorChat';
 import DebateChatingMessage, { ChatMessage } from '../../common/debateChatingMessage';
 import ChatInputBox from '../../common/ChatInputBox';
-import { debateMessages as initialMessages } from '../layout/DebateLivePage';
-/**
- * TODO: 백엔드 연동 전까지는 사용자가 "team: message" 형식으로 입력하면,
- * team 값을 파싱해서 team이 '찬성'이면 왼쪽, '반대'면 오른쪽에 말풍선이 생성되도록 구현됨
- * 그냥 채팅을 입력하면 왼쪽에 말풍선이 생성됨
- */
-// 팀명(찬성측/반대측) 제거 함수
-function getNickname(username: string) {
-  return username.replace(/^(찬성|반대)측\s*/, '');
-}
+
+import DebateChatTitleBar from '../../common/debateChatTitleBar';
+
+type DebatePhase = {
+  name: string;
+  duration: number;
+  team: '찬성' | '반대';
+  type: '입론' | '심문' | '반론';
+};
+
+const debatePhases: DebatePhase[] = [
+  { name: '찬성 입론', duration: 3, team: '찬성', type: '입론' },
+  { name: '반대 심문', duration: 3, team: '반대', type: '심문' },
+  { name: '반대 입론', duration: 3, team: '반대', type: '입론' },
+  { name: '찬성 심문', duration: 3, team: '찬성', type: '심문' },
+  { name: '반대 반론', duration: 3, team: '반대', type: '반론' },
+  { name: '찬성 반론', duration: 3, team: '찬성', type: '반론' },
+];
 
 const DebateChatingPanel: React.FC = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
+  const [timerSec, setTimerSec] = useState(debatePhases[0].duration);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // 입력값에서 team 파싱 후 메시지 추가
+  // 토론 페이즈 전환 + 사회자 메시지 추가
+  useEffect(() => {
+    if (timerSec <= 0) {
+      if (currentPhaseIndex === debatePhases.length - 1) {
+        setMessages(prev => [
+          ...prev,
+          {
+            team: 'moderator',
+            username: '사회자',
+            message: '토론이 종료되었습니다.',
+            timestamp: new Date().toLocaleTimeString().slice(0, 5),
+            isMe: false,
+          },
+        ]);
+        return;
+      }
+
+      const nextPhaseIndex = currentPhaseIndex + 1;
+      const nextPhase = debatePhases[nextPhaseIndex];
+
+      setCurrentPhaseIndex(nextPhaseIndex);
+      setTimerSec(nextPhase.duration);
+
+      setMessages(prev => [
+        ...prev,
+        {
+          team: 'moderator',
+          username: '사회자',
+          message: `${nextPhase.name}이(가) 시작되었습니다. ${nextPhase.team}측 발언해주세요.`,
+          timestamp: new Date().toLocaleTimeString().slice(0, 5),
+          isMe: false,
+        },
+      ]);
+    } else {
+      const interval = setInterval(() => {
+        setTimerSec(prev => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [timerSec, currentPhaseIndex]);
+
+  // 초기 진입 시 첫 페이즈 사회자 메시지 한 번만 추가
+  useEffect(() => {
+    const firstPhase = debatePhases[0];
+    setMessages([
+      {
+        team: 'moderator',
+        username: '사회자',
+        message: `${firstPhase.name}이(가) 시작되었습니다. ${firstPhase.team}측 발언해주세요.`,
+        timestamp: new Date().toLocaleTimeString().slice(0, 5),
+        isMe: false,
+      },
+    ]);
+  }, []);
+
+  // 스크롤 항상 아래로 유지
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  // 사용자 메시지 전송
   const handleSend = (msg: string) => {
     const match = msg.match(/^(찬성|반대)\s*:\s*(.*)$/);
     let team: '찬성' | '반대' = '찬성';
@@ -27,27 +98,34 @@ const DebateChatingPanel: React.FC = () => {
       team = match[1] as '찬성' | '반대';
       message = match[2];
     }
-    setMessages(prev => [
-      ...prev,
-      {
-        team,
-        username: team === '찬성' ? '찬성측 000' : '반대측 001',
-        message,
-        timestamp: new Date().toLocaleTimeString().slice(0,5),
-        isMe: true,
-      }
-    ]);
+    // 현재 페이즈의 team과 일치하는 경우에만 메시지 추가
+    if (team === debatePhases[currentPhaseIndex].team) {
+      setMessages(prev => [
+        ...prev,
+        {
+          team,
+          username: team === '찬성' ? '찬성측 000' : '반대측 001',
+          message,
+          timestamp: new Date().toLocaleTimeString().slice(0, 5),
+          isMe: false,
+        },
+      ]);
+    } else {
+      alert(`${debatePhases[currentPhaseIndex].team}측 차례입니다.`);
+    }
   };
 
-  // 메시지 변경 시 스크롤 아래로 이동
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
+  const currentPhase = debatePhases[currentPhaseIndex];
 
   return (
     <Container>
+      <DebateChatTitleBar
+        proCount={3}
+        conCount={3}
+        maxCount={5}
+        phaseText={currentPhase.name}
+        timerSec={timerSec}
+      />
       <MessageArea ref={scrollRef}>
         <DebateChatingMessage messages={messages} chatType="debate" />
       </MessageArea>
@@ -71,4 +149,4 @@ const MessageArea = styled.div`
   flex-direction: column;
 `;
 
-export default DebateChatingPanel; 
+export default DebateChatingPanel;

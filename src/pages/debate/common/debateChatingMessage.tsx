@@ -21,11 +21,7 @@ interface MessageProps extends ChatMessage {
   chatType?: ChatType;
 }
 
-interface StyledProps {
-  team: '찬성' | '반대' | 'moderator';
-  isMe?: boolean;
-  isRight?: boolean;
-}
+
 
 const Message: React.FC<MessageProps> = ({ team, username, message, timestamp, isMe, chatType }) => {
   let isRight = false;

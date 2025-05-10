@@ -1,31 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import DebaterStage from '../../common/debaterStage';
 import ChatingPanel from '../../common/chatingPanel';
 import DebateChatingPanel from '../fragments/debateChatingPanel';
 import { ChatMessage } from '../../common/debateChatingMessage';
 
-import DebateChatTitleBar from '../../common/debateChatTitleBar';
 
 export const debateMessages: ChatMessage[] = [
-  { team: 'moderator', username: '사회자', message: '토론이 시작되었습니다. 찬성측부터 발언해주세요.', timestamp: '05:50' },
-  { team: '찬성', username: '찬성측 000', message: '찬성측 첫 메시지(왼쪽)11111111111111111111111111111111111111111111111111111111111', timestamp: '05:49' },
-  { team: '반대', username: '반대측 001', message: '반대측 첫 메시지(오른쪽)', timestamp: '05:51' },
-  { team: '찬성', username: '찬성측 002', message: '찬성측 두 번째 메시지(왼쪽)', timestamp: '05:52' },
-  { team: '반대', username: '반대측 003', message: '반대측 두 번째 메시지(오른쪽)', timestamp: '05:53' },
-  { team: 'moderator', username: '사회자자', message: '반론이 시작되었습니다. 찬성측부터 발언해주세요.', timestamp: '05:54' }
-
+  // { team: 'moderator', username: '사회자', message: '예시)토론이 시작되었습니다. 찬성측부터 발언해주세요.', timestamp: '05:50' },
+  // { team: '찬성', username: '찬성측 000', message: '찬성측 첫 메시지(왼쪽)11111111111111111111111111111111111111111111111111111111111', timestamp: '05:49' },
+  // { team: '반대', username: '반대측 001', message: '반대측 첫 메시지(오른쪽)', timestamp: '05:51' },
+  // { team: '찬성', username: '찬성측 002', message: '찬성측 두 번째 메시지(왼쪽)', timestamp: '05:52' },
+  // { team: '반대', username: '반대측 003', message: '반대측 두 번째 메시지(오른쪽)', timestamp: '05:53' }
 ];
 
 const debateInfo = '미드는 황족 라인이다';
 
-// 예시 인원수 및 진행상황
-const proCount = 2;
-const conCount = 1;
-const maxCount = 3;
-const debatePhase = '찬성측 입론';
+
 
 const DiscussionRoom: React.FC = () => {
+  const [timerSec, setTimerSec] = useState(60); // 1분
+
+  useEffect(() => {
+    if (timerSec <= 0) return;
+    const interval = setInterval(() => {
+      setTimerSec((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timerSec]);
+
   return (
     <Wrapper>
       <DebaterStage participantCount={2} />
@@ -33,13 +36,7 @@ const DiscussionRoom: React.FC = () => {
         <DebateArea>
           <DebateLeft>
             <DebateChatBox>
-              <DebateChatTitleBar
-                proCount={proCount}
-                conCount={conCount}
-                maxCount={maxCount}
-                phaseText={debatePhase}
-                timer="5:00"
-              />
+
               <ChatScrollArea>
                 <DebateChatingPanel />
               </ChatScrollArea>
