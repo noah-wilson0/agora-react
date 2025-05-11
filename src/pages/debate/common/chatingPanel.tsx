@@ -14,12 +14,12 @@ interface StyledProps {
 
 const myUsername = '나';
 
-
 const initialTeamMessages: ChatMessage[] = [
   { team: '찬성', username: '유저1', message: '팀 채팅 예시(내 메시지, 왼쪽, 상대)', timestamp: '10:01' },
   { team: '반대', username: '유저2', message: '팀 채팅 예시(내 메시지, 왼쪽, 상대)', timestamp: '10:02' },
   { team: '찬성', username: myUsername, message: '팀 채팅 예시(내 메시지, 오른쪽)', timestamp: '10:03', isMe: true },
 ];
+
 const initialFreeMessages: ChatMessage[] = [
   { team: '찬성', username: '유저3', message: '자유 채팅 예시(내 메시지, 왼쪽, 상대)', timestamp: '10:04' },
   { team: '찬성', username: myUsername, message: '자유 채팅 예시(내 메시지, 오른쪽)', timestamp: '10:05', isMe: true },
@@ -41,7 +41,6 @@ const chatTooltips: Record<ChatType, string> = chatTitles;
 
 const ALL_CHATS: ChatType[] = ['free', 'team', 'ai'];
 
-
 const ChatingPanel: React.FC = () => {
   const [openChats, setOpenChats] = useState<ChatType[]>(['free', 'team']);
   const [heights, setHeights] = useState<number[]>([50, 50]);
@@ -51,6 +50,13 @@ const ChatingPanel: React.FC = () => {
   const [teamMessages, setTeamMessages] = useState<ChatMessage[]>(initialTeamMessages);
   const [freeMessages, setFreeMessages] = useState<ChatMessage[]>(initialFreeMessages);
   const [aiMessages, setAiMessages] = useState<ChatMessage[]>([]);
+  
+  // 각 채팅창의 스크롤 ref를 위한 객체
+  const scrollRefs = useRef<Record<ChatType, HTMLDivElement | null>>({
+    team: null,
+    free: null,
+    ai: null
+  });
 
   // 닫힌 채팅창 목록
   const closedChats = ALL_CHATS.filter((type) => !openChats.includes(type));
@@ -125,18 +131,28 @@ const ChatingPanel: React.FC = () => {
   };
 
   // 채팅창 개수 변화 시 높이 동기화
-  React.useEffect(() => {
+  useEffect(() => {
     setHeights((prev) => {
       if (prev.length === openChats.length) return prev;
       return Array(openChats.length).fill(100 / openChats.length);
     });
   }, [openChats.length]);
 
+  // 메시지 변경 시 스크롤 아래로 이동
+  useEffect(() => {
+    openChats.forEach(type => {
+      const scrollRef = scrollRefs.current[type];
+      if (scrollRef) {
+        scrollRef.scrollTop = scrollRef.scrollHeight;
+      }
+    });
+  }, [teamMessages, freeMessages, aiMessages, openChats]);
+
   const handleSendTeam = (msg: string) => {
     setTeamMessages(prev => [
       ...prev,
       {
-        team: '찬성', // 실제 팀 정보로 교체 필요
+        team: '찬성',
         username: myUsername,
         message: msg,
         timestamp: new Date().toLocaleTimeString().slice(0,5),
@@ -149,7 +165,7 @@ const ChatingPanel: React.FC = () => {
     setFreeMessages(prev => [
       ...prev,
       {
-        team: '찬성', // 실제 팀 정보로 교체 필요
+        team: '찬성',
         username: myUsername,
         message: msg,
         timestamp: new Date().toLocaleTimeString().slice(0,5),
@@ -162,7 +178,7 @@ const ChatingPanel: React.FC = () => {
     setAiMessages(prev => [
       ...prev,
       {
-        team: '찬성', // 실제 팀 정보로 교체 필요
+        team: '찬성',
         username: myUsername,
         message: msg,
         timestamp: new Date().toLocaleTimeString().slice(0,5),
@@ -188,16 +204,7 @@ const ChatingPanel: React.FC = () => {
       </ChatTypeSelector>
       <VerticalSplitArea id="chatting-panel-vertical">
         {openChats.map((type, i) => {
-          // 각 채팅창별로 스크롤 ref 생성
-          const scrollRef = useRef<HTMLDivElement>(null);
-          // 해당 채팅창의 메시지 배열
           const messages = type === 'team' ? teamMessages : type === 'free' ? freeMessages : aiMessages;
-          // 메시지 변경 시 스크롤 아래로 이동
-          useEffect(() => {
-            if (scrollRef.current) {
-              scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-            }
-          }, [messages]);
           return (
             <React.Fragment key={type}>
               <ChatBox style={{ height: `calc(${heights[i]}% - ${(openChats.length-1)*8/openChats.length}px)` }}>
@@ -208,7 +215,7 @@ const ChatingPanel: React.FC = () => {
                   </ChatBoxTitle>
                   <CloseBtn onClick={() => closeChat(type)} title="닫기">×</CloseBtn>
                 </ChatBoxHeader>
-                <ChatContainer ref={scrollRef}>
+                <ChatContainer ref={el => scrollRefs.current[type] = el}>
                   {type === 'team' && (
                     <ChatingMessage messages={teamMessages} chatType="team" />
                   )}
