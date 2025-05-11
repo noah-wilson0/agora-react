@@ -13,7 +13,6 @@ const proScore = 200;
 const conScore = 100;
 const resultText = '투표 결과!\n총 투표 000표\n찬성 00표 반대 00표\n찬성측 승리!!';
 const debateInfo = '미드는 황족 라인이다';
-const maxCount = 3;
 
 const OutcomePage: React.FC = () => {
   const handleReplay = () => alert('토론 다시보기');
@@ -32,7 +31,6 @@ const OutcomePage: React.FC = () => {
                   conCount={1}
                   maxCount={3}
                   phaseText="투표 결과"
-                  timer="01:00"
                 />
                 <ModeratorChat message="투표가 완료되었습니다. 투표결과를 확인하세요" />
               </Spacing>

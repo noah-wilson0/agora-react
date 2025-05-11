@@ -6,7 +6,7 @@ interface DebateChatTitleBarProps {
   conCount: number;
   maxCount: number;
   phaseText: string;
-  timerSec: number; // 타이머 초를 직접 전달받음
+  timerSec?: number; // 타이머 초를 선택적으로 전달받음
 }
 
 function formatTimer(sec: number) {
@@ -23,7 +23,7 @@ const DebateChatTitleBar: React.FC<DebateChatTitleBarProps> = ({ proCount, conCo
         <TeamCount>({proCount}/{maxCount})</TeamCount>
       </ChatTeamSide>
       <ChatPhase>
-        {phaseText} <Timer>{formatTimer(timerSec)}</Timer>
+        {phaseText} {timerSec !== undefined && <Timer>{formatTimer(timerSec)}</Timer>}
       </ChatPhase>
       <ChatTeamSide style={{ justifyContent: 'flex-end' }}>
         <TeamLabel team="con">반대</TeamLabel>

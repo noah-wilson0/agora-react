@@ -6,6 +6,7 @@ import ChatingPanel from '../../common/chatingPanel';
 import DebateLobbyPanel, { Participant } from '../fragments/DebateLobbyPanel';
 import DebateChatTitleBar from '../../common/debateChatTitleBar';
 import ModeratorChat from '../../common/moderatorChat';
+import useTimer from '../../common/useTimer';
 
 // 임의의 참가자 데이터
 const availableParticipants: Record<'찬성' | '반대', Participant[]> = {
@@ -27,6 +28,13 @@ const debateInfo = '미드는 황족 라인이다';
 const DebateLobbyPage: React.FC = () => {
     const [proParticipants, setProParticipants] = useState<Participant[]>([]);
     const [conParticipants, setConParticipants] = useState<Participant[]>([]);
+
+    const timerSec = useTimer({
+        initialTime: 60,
+        onTimeEnd: () => {
+            console.log('대기 시간이 종료되었습니다.');
+        }
+    });
 
     // 실제 참가자 수 계산 함수
     const getParticipantCount = (participants: Participant[]) => {
@@ -79,7 +87,7 @@ const DebateLobbyPage: React.FC = () => {
                                     conCount={getParticipantCount(conParticipants)}
                                     maxCount={maxCount}
                                     phaseText="입장 대기중"
-                                    timerSec={0}
+                                    timerSec={timerSec}
                                 />
                                 <ModeratorChat message="입장 대기 중입니다. 원하는 팀과 역할을 선택하세요" />
                             </Spacing>
