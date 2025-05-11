@@ -6,16 +6,26 @@ import ChatingPanel from '../../common/chatingPanel';
 import ModeratorChat from '../../common/moderatorChat';
 import VoteSummaryPanel from '../fragments/VoteSummaryPanel';
 import DebateChatTitleBar from '../../common/debateChatTitleBar';
-
+import useTimer from '../../common/useTimer';
+/**
+ * TODO: 투표 버튼 클릭시 투표 화면 구현  
+*/
 const VotePage: React.FC = () => {
   // 샘플 데이터
   const debateInfo = "미드는 황족 라인이다";
   const proSummary = "찬성측 모든 의견 요약...";
   const conSummary = "반대측 모든 의견 요약...";
 
-  // 투표 핸들러
+  const timerSec = useTimer({
+    initialTime: 5,
+    onTimeEnd: () => {
+      console.log('투표 시간이 종료되었습니다.');
+    }
+  });
+
   const handleVote = (team: 'pro' | 'con') => {
-    alert(`${team === 'pro' ? '찬성측' : '반대측'}에 투표하셨습니다!`);
+    // 투표 처리 로직만 수행
+    console.log(`${team === 'pro' ? '찬성측' : '반대측'} 투표 처리`);
   };
 
   return (
@@ -31,7 +41,7 @@ const VotePage: React.FC = () => {
                   conCount={1}
                   maxCount={3}
                   phaseText="투표 진행중"
-                  timer="05:49"
+                  timerSec={timerSec}
                 />
                 <ModeratorChat message={"투표 시간입니다.\n원하는 팀에 투표하세요"} />
               </Spacing>
@@ -118,8 +128,6 @@ const DebateInfoSpacer = styled.div`
   flex-shrink: 0;
   flex-grow: 0;
 `;
-
-
 
 const ChatingPanelWrapper = styled.div`
   width: 340px;
