@@ -28,9 +28,9 @@ const OutcomePage: React.FC = () => {
             <DebateChatBox>
               <Spacing>
                 <DebateChatTitleBar
-                  proCount={proScore}
-                  conCount={conScore}
-                  maxCount={maxCount}
+                  proCount={2}
+                  conCount={1}
+                  maxCount={3}
                   phaseText="투표 결과"
                   timer="01:00"
                 />

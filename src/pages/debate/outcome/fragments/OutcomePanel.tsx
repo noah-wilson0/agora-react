@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 
 interface OutcomePanelProps {
@@ -20,6 +20,32 @@ const OutcomePanel: React.FC<OutcomePanelProps> = ({
   onReplay,
   onArchive,
 }) => {
+  const [animatedProScore, setAnimatedProScore] = useState(0);
+  const [animatedConScore, setAnimatedConScore] = useState(0);
+
+  useEffect(() => {
+    const duration = 1000; // 1초
+    const steps = 60; // 60프레임
+    const interval = duration / steps;
+    let currentStep = 0;
+
+    const timer = setInterval(() => {
+      currentStep++;
+      const progress = currentStep / steps;
+      
+      setAnimatedProScore(Math.floor(proScore * progress));
+      setAnimatedConScore(Math.floor(conScore * progress));
+
+      if (currentStep >= steps) {
+        clearInterval(timer);
+        setAnimatedProScore(proScore);
+        setAnimatedConScore(conScore);
+      }
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [proScore, conScore]);
+
   // Prevent division by zero
   const total = proScore + conScore || 1;
   const winner = proScore > conScore ? 'pro' : (conScore > proScore ? 'con' : null);
@@ -43,13 +69,13 @@ const OutcomePanel: React.FC<OutcomePanelProps> = ({
       </SummaryBoxWrap>
       <ScoreRow>
         <ScoreBox team="pro" isWinner={winner === 'pro'} style={{ flexGrow: proScore, flexBasis: `${(proScore/total)*100}%` }}>
-          {proScore}
+          {animatedProScore}
           {winner === 'pro' && (
             <WinnerEffect>🏆 승리</WinnerEffect>
           )}
         </ScoreBox>
         <ScoreBox team="con" isWinner={winner === 'con'} style={{ flexGrow: conScore, flexBasis: `${(conScore/total)*100}%` }}>
-          {conScore}
+          {animatedConScore}
           {winner === 'con' && (
             <WinnerEffect>🏆 승리</WinnerEffect>
           )}
@@ -91,9 +117,19 @@ const SummaryBox = styled.div<{ team: 'pro' | 'con'; isWinner?: boolean }>`
   ${({ isWinner }) =>
     isWinner &&
     `
+      animation: highlightWinnerBox 0.5s ease-out 1s forwards;
+    `}
+
+  @keyframes highlightWinnerBox {
+    0% {
+      border: 3px solid #e0e0e0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.13);
+    }
+    100% {
       border: 3px solid #ffb300;
       box-shadow: 0 0 16px 2px #ffe082;
-    `}
+    }
+  }
 `;
 const SummaryTitle = styled.div<{ team: 'pro' | 'con' }>`
   font-size: 1.05rem;
@@ -122,19 +158,55 @@ const ScoreBox = styled.div<{ team: 'pro' | 'con'; isWinner?: boolean }>`
   text-align: center;
   font-size: 2rem;
   font-weight: 700;
-  background: ${({ team }) => (team === 'pro' ? '#e3f6ff' : '#ffe3e3')};
+  background: ${({ team }) =>
+    team === 'pro'
+      ? 'linear-gradient(to right, #6ec6ff 0%, #e3f6ff 100%)'
+      : 'linear-gradient(to left, #ffb3b3 0%, #ffe3e3 100%)'};
   color: #222;
-  border-radius: 16px;
+  border-radius: ${({ team }) =>
+    team === 'pro'
+      ? '16px 0 0 16px'
+      : '0 16px 16px 0'};
   padding: 0.7rem 0;
   min-width: 60px;
-  transition: flex-basis 0.4s, flex-grow 0.4s, box-shadow 0.3s, border 0.3s;
   position: relative;
-  ${({ isWinner }) =>
+  transform-origin: ${({ team }) => team === 'pro' ? 'left' : 'right'};
+  transform: ${({ team }) => team === 'pro' ? 'scaleX(0)' : 'scaleX(0)'};
+  animation: ${({ team }) => team === 'pro' ? 'growFromLeft 1s ease-out forwards' : 'growFromRight 1s ease-out forwards'};
+  ${({ isWinner, team }) =>
     isWinner &&
     `
+      animation: ${team === 'pro' ? 'growFromLeft 1s ease-out forwards, highlightWinner 0.5s ease-out 1s forwards' : 'growFromRight 1s ease-out forwards, highlightWinner 0.5s ease-out 1s forwards'};
+    `}
+
+  @keyframes growFromLeft {
+    0% {
+      transform: scaleX(0);
+    }
+    100% {
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes growFromRight {
+    0% {
+      transform: scaleX(0);
+    }
+    100% {
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes highlightWinner {
+    0% {
+      border: 1.5px solid #888;
+      box-shadow: none;
+    }
+    100% {
       border: 2.5px solid #ffb300;
       box-shadow: 0 0 12px 2px #ffe082;
-    `}
+    }
+  }
 `;
 const WinnerEffect = styled.span`
   display: inline-block;
@@ -143,7 +215,8 @@ const WinnerEffect = styled.span`
   color: #ff9800;
   margin-left: 0.7em;
   vertical-align: middle;
-  animation: winner-pop 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+  animation: winner-pop 0.7s cubic-bezier(.68,-0.55,.27,1.55) 1s forwards;
+  opacity: 0;
 
   @keyframes winner-pop {
     0% { transform: scale(0.7); opacity: 0; }
@@ -158,7 +231,8 @@ const WinnerEffectBox = styled.span`
   color: #ff9800;
   margin-left: 0.7em;
   vertical-align: middle;
-  animation: winner-pop 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+  animation: winner-pop 0.7s cubic-bezier(.68,-0.55,.27,1.55) 1s forwards;
+  opacity: 0;
 
   @keyframes winner-pop {
     0% { transform: scale(0.7); opacity: 0; }
