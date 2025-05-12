@@ -6,6 +6,7 @@ import DiscussionRoom from './pages/debate/live/layout/DebateLivePage';
 import MainPage from './pages/main/MainPage';
 import SearchResultPage from './pages/main/SearchResultPage';
 import './App.css'
+import ArchivePage from './pages/main/ArchivePage';
 
 const App: React.FC = () => {
   return (
@@ -16,6 +17,7 @@ const App: React.FC = () => {
         <Route path="/discussion" element={<DiscussionRoom />} />
         <Route path="/discussion/vote" element={<VotePage />} />
         <Route path="/search" element={<SearchResultPage />} />
+        <Route path="/archive" element={<ArchivePage />} />
         <Route path="*" element={<Home />} />
       </Routes>
     </Router>
