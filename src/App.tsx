@@ -5,6 +5,8 @@ import VotePage from './pages/debate/vote/layout/VotePage';
 import DiscussionRoom from './pages/debate/live/layout/DebateLivePage';
 import MainPage from './pages/main/MainPage';
 import SearchResultPage from './pages/main/SearchResultPage';
+import DebateLobby from './pages/debate/lobby/layout/DebateLobbyPage';
+import OutcomePage from './pages/debate/outcome/layout/OutcomePage';
 import './App.css'
 import ArchivePage from './pages/main/ArchivePage';
 
@@ -18,6 +20,8 @@ const App: React.FC = () => {
         <Route path="/discussion/vote" element={<VotePage />} />
         <Route path="/search" element={<SearchResultPage />} />
         <Route path="/archive" element={<ArchivePage />} />
+        <Route path="/discussion/lobby" element={<DebateLobby />} />
+        <Route path="/discussion/outcome" element={<OutcomePage />} />
         <Route path="*" element={<Home />} />
       </Routes>
     </Router>

@@ -1,31 +1,28 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import DebaterStage from '../../common/debaterStage';
+import OutcomePanel from '../fragments/OutcomePanel';
 import DebateInfoBox from '../../common/debateInfoBox';
 import ChatingPanel from '../../common/chatingPanel';
-import ModeratorChat from '../../common/moderatorChat';
-import VoteSummaryPanel from '../fragments/VoteSummaryPanel';
 import DebateChatTitleBar from '../../common/debateChatTitleBar';
-import useTimerNavigate from '../../common/useTimerNavigate';
+import ModeratorChat from '../../common/moderatorChat';
+import { useLocation } from 'react-router-dom';
+
+const proSummary = '찬성측 모든 의견 요약...';
+const conSummary = '반대측 모든 의견 요약...';
+const proScore = 200;
+const conScore = 100;
+const resultText = '투표 결과!\n총 투표 000표\n찬성 00표 반대 00표\n찬성측 승리!!';
+const debateInfo = '미드는 황족 라인이다';
 /**
  * 
- * TODO: 투표 -> 결과 화면 전환 시 샘플 데이터를 넘기는 구조 추후 삭제 예정
+ * TODO: 투표 결과 state값을 console.log로 출력되는 구조를 적용 중 추후 삭제 예정
  */
-const VotePage: React.FC = () => {
-  // 샘플 데이터
-  const debateInfo = "미드는 황족 라인이다";
-  const proSummary = "찬성측 모든 의견 요약...";
-  const conSummary = "반대측 모든 의견 요약...";
-
-  // 샘플 투표 결과 데이터
-  const voteResult = { pro: 10, con: 5, winner: 'pro' };
-
-  const timerSec = useTimerNavigate(5, '/discussion/outcome', voteResult);
-
-  const handleVote = (team: 'pro' | 'con') => {
-    // 투표 처리 로직만 수행
-    console.log(`${team === 'pro' ? '찬성측' : '반대측'} 투표 처리`);
-  };
+const OutcomePage: React.FC = () => {
+  const location = useLocation();
+  console.log('전달받은 투표 결과:', location.state);
+  const handleReplay = () => alert('토론 다시보기');
+  const handleArchive = () => alert('토론 아카이브');
 
   return (
     <Wrapper>
@@ -39,16 +36,19 @@ const VotePage: React.FC = () => {
                   proCount={2}
                   conCount={1}
                   maxCount={3}
-                  phaseText="투표 진행중"
-                  timerSec={timerSec}
+                  phaseText="투표 결과"
                 />
-                <ModeratorChat message={"투표 시간입니다.\n원하는 팀에 투표하세요"} />
+                <ModeratorChat message="투표가 완료되었습니다. 투표결과를 확인하세요" />
               </Spacing>
               <ChatScrollArea>
-                <VoteSummaryPanel
+                <OutcomePanel
                   proSummary={proSummary}
                   conSummary={conSummary}
-                  onVote={handleVote}
+                  proScore={proScore}
+                  conScore={conScore}
+                  resultText={resultText}
+                  onReplay={handleReplay}
+                  onArchive={handleArchive}
                 />
               </ChatScrollArea>
             </DebateChatBox>
@@ -143,4 +143,4 @@ const Spacing = styled.div`
   margin-bottom: 1rem;
 `;
 
-export default VotePage; 
+export default OutcomePage; 

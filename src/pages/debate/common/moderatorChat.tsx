@@ -28,6 +28,3 @@ const ModeratorChat: React.FC<ModeratorChatProps> = ({ message }) => {
 };
 
 export default ModeratorChat;
-
-// 샘플 데이터
-const sampleMessage = "토론이 시작되었습니다. 찬성측부터 발언해주세요."; 

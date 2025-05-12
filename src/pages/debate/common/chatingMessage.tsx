@@ -21,11 +21,6 @@ interface MessageProps extends ChatMessage {
   chatType?: ChatType;
 }
 
-interface StyledProps {
-  team: '찬성' | '반대' | 'moderator';
-  isMe?: boolean;
-  isRight?: boolean;
-}
 
 const Message: React.FC<MessageProps> = ({ team, username, message, timestamp, isMe, chatType }) => {
   // 토론 채팅: 찬성측(초록) 왼쪽, 반대측(빨강) 오른쪽

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
+import VoteButton from './VoteButton';
 
 interface VoteSummaryPanelProps {
   proSummary: string;
@@ -11,6 +12,16 @@ interface VoteSummaryPanelProps {
 const VoteSummaryPanel: React.FC<VoteSummaryPanelProps> = ({ proSummary, conSummary, onVote, hideButton }) => {
   const [proFocused, setProFocused] = useState(false);
   const [conFocused, setConFocused] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState<'pro' | 'con' | undefined>();
+
+  const handleVote = (team: 'pro' | 'con') => {
+    setSelectedTeam(team);
+    onVote(team);
+  };
+
+  const handleResetVote = () => {
+    setSelectedTeam(undefined);
+  };
 
   return (
     <PanelWrapper>
@@ -37,9 +48,13 @@ const VoteSummaryPanel: React.FC<VoteSummaryPanelProps> = ({ proSummary, conSumm
         </SummaryBox>
       </SummaryBoxWrap>
       {!hideButton && (
-        <VoteButtonWrapper>
-          <VoteButton onClick={() => onVote('pro')}>투표하기</VoteButton>
-        </VoteButtonWrapper>
+        <VoteButton 
+          onClick={handleVote} 
+          selectedTeam={selectedTeam}
+          onResetVote={handleResetVote}
+        >
+          투표하기
+        </VoteButton>
       )}
     </PanelWrapper>
   );
@@ -98,31 +113,4 @@ const SummaryContent = styled.div`
   word-break: break-word;
 `;
 
-const VoteButtonWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  margin-top: 2.5rem;
-`;
-
-const VoteButton = styled.button`
-  background: #fff;
-  border: 1.5px solid #888;
-  color: #222;
-  font-size: 0.72rem;
-  font-weight: 500;
-  border-radius: 8px;
-  padding: 0.4rem 1.5rem;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.07);
-  &:hover {
-    background: #f5f5f5;
-    color: #1565c0;
-  }
-`;
-
-export { VoteButtonWrapper, VoteButton };
 export default VoteSummaryPanel; 
