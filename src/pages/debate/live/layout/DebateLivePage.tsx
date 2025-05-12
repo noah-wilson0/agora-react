@@ -4,6 +4,7 @@ import DebaterStage from '../../common/debaterStage';
 import ChatingPanel from '../../common/chatingPanel';
 import DebateChatingPanel from '../fragments/debateChatingPanel';
 import { ChatMessage } from '../../common/debateChatingMessage';
+import useTimerNavigate from '../../common/useTimerNavigate';
 
 
 export const debateMessages: ChatMessage[] = [
@@ -19,15 +20,7 @@ const debateInfo = '미드는 황족 라인이다';
 
 
 const DiscussionRoom: React.FC = () => {
-  const [timerSec, setTimerSec] = useState(60); // 1분
-
-  useEffect(() => {
-    if (timerSec <= 0) return;
-    const interval = setInterval(() => {
-      setTimerSec((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [timerSec]);
+  const timerSec = useTimerNavigate(10, '/discussion/vote');
 
   return (
     <Wrapper>

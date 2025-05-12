@@ -6,6 +6,7 @@ import DebateInfoBox from '../../common/debateInfoBox';
 import ChatingPanel from '../../common/chatingPanel';
 import DebateChatTitleBar from '../../common/debateChatTitleBar';
 import ModeratorChat from '../../common/moderatorChat';
+import { useLocation } from 'react-router-dom';
 
 const proSummary = '찬성측 모든 의견 요약...';
 const conSummary = '반대측 모든 의견 요약...';
@@ -13,8 +14,13 @@ const proScore = 200;
 const conScore = 100;
 const resultText = '투표 결과!\n총 투표 000표\n찬성 00표 반대 00표\n찬성측 승리!!';
 const debateInfo = '미드는 황족 라인이다';
-
+/**
+ * 
+ * TODO: 투표 결과 state값을 console.log로 출력되는 구조를 적용 중 추후 삭제 예정
+ */
 const OutcomePage: React.FC = () => {
+  const location = useLocation();
+  console.log('전달받은 투표 결과:', location.state);
   const handleReplay = () => alert('토론 다시보기');
   const handleArchive = () => alert('토론 아카이브');
 

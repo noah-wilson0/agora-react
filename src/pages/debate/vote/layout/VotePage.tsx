@@ -6,22 +6,21 @@ import ChatingPanel from '../../common/chatingPanel';
 import ModeratorChat from '../../common/moderatorChat';
 import VoteSummaryPanel from '../fragments/VoteSummaryPanel';
 import DebateChatTitleBar from '../../common/debateChatTitleBar';
-import useTimer from '../../common/useTimer';
+import useTimerNavigate from '../../common/useTimerNavigate';
 /**
- * TODO: 투표 버튼 클릭시 투표 화면 구현  
-*/
+ * 
+ * TODO: 투표 -> 결과 화면 전환 시 샘플 데이터를 넘기는 구조 추후 삭제 예정
+ */
 const VotePage: React.FC = () => {
   // 샘플 데이터
   const debateInfo = "미드는 황족 라인이다";
   const proSummary = "찬성측 모든 의견 요약...";
   const conSummary = "반대측 모든 의견 요약...";
 
-  const timerSec = useTimer({
-    initialTime: 5,
-    onTimeEnd: () => {
-      console.log('투표 시간이 종료되었습니다.');
-    }
-  });
+  // 샘플 투표 결과 데이터
+  const voteResult = { pro: 10, con: 5, winner: 'pro' };
+
+  const timerSec = useTimerNavigate(5, '/discussion/outcome', voteResult);
 
   const handleVote = (team: 'pro' | 'con') => {
     // 투표 처리 로직만 수행

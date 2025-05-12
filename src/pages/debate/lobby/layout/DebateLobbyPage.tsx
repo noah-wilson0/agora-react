@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
+import { useNavigate } from 'react-router-dom';
 import DebaterStage from '../../common/debaterStage';
 import DebateInfoBox from '../../common/debateInfoBox';
 import ChatingPanel from '../../common/chatingPanel';
 import DebateLobbyPanel, { Participant } from '../fragments/DebateLobbyPanel';
 import DebateChatTitleBar from '../../common/debateChatTitleBar';
 import ModeratorChat from '../../common/moderatorChat';
-import useTimer from '../../common/useTimer';
+import useTimerNavigate from '../../common/useTimerNavigate';
 
 // 임의의 참가자 데이터
 const availableParticipants: Record<'찬성' | '반대', Participant[]> = {
@@ -26,15 +27,11 @@ const maxCount = 3;
 const debateInfo = '미드는 황족 라인이다';
 
 const DebateLobbyPage: React.FC = () => {
+    const navigate = useNavigate();
     const [proParticipants, setProParticipants] = useState<Participant[]>([]);
     const [conParticipants, setConParticipants] = useState<Participant[]>([]);
 
-    const timerSec = useTimer({
-        initialTime: 60,
-        onTimeEnd: () => {
-            console.log('대기 시간이 종료되었습니다.');
-        }
-    });
+    const timerSec = useTimerNavigate(10, '/discussion');
 
     // 실제 참가자 수 계산 함수
     const getParticipantCount = (participants: Participant[]) => {
