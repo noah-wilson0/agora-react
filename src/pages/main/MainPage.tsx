@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { FiSearch } from 'react-icons/fi';
+import { FiSearch, FiPlus } from 'react-icons/fi';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import CategorySelect from '../../components/CategorySelect';
 
 // 더미 데이터
 const liveDebates = [
@@ -19,6 +20,46 @@ const topContributors = [
   { name: '이길동', icon: '🥉' },
   { name: '박길동', icon: '🔷' },
   { name: '최길동', icon: '🔶' },
+];
+
+// 카테고리 데이터 (CategorySelect와 동일)
+const navCategories = [
+  {
+    main: '문화',
+    sub: ['대중문화/엔터테인먼트', '문학/에세이', '예술/디자인', '소셜', '연애', '스포츠']
+  },
+  {
+    main: '경제',
+    sub: ['경제 일반', '고용/노동시장', '금융/화폐', '부동산/자산', '소비/물가']
+  },
+  {
+    main: '사회',
+    sub: ['사회/시사', '정치', '인권/복지', '젠더/가족', '사건·사고 및 사회현상']
+  },
+  {
+    main: '국제/외교',
+    sub: ['외교/안보', '국제 갈등/협력', '글로벌 경제·무역', '국제 인권/정책', '국제기구/세계 질서']
+  },
+  {
+    main: '산업',
+    sub: ['산업구조/노동', 'IT산업/콘텐츠 산업', '제조/중공업', '유통/물류', '스타트업/창업']
+  },
+  {
+    main: '기후/환경',
+    sub: ['기후변화/탄소중립', '에너지 정책', '생태계 보호', '환경오염', '환경 윤리']
+  },
+  {
+    main: '과학/기술',
+    sub: ['인공지능/로봇', '생명과학/유전공학', '정보보안/데이터', '우주/물리/기초과학', '일반 기술']
+  },
+  {
+    main: '인문',
+    sub: ['철학', '현대사상', '종교', '자기성찰·자기계발']
+  },
+  {
+    main: '생활',
+    sub: ['동물', '음식', '여행', '취미', '육아']
+  }
 ];
 
 const breakpoints = {
@@ -42,6 +83,24 @@ const MainPage: React.FC = () => {
   };
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') handleSearch();
+  };
+
+  const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
+  const [selectedMainCategory, setSelectedMainCategory] = useState<string>('');
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
+  const [navHoverIndex, setNavHoverIndex] = useState<number|null>(null);
+
+  const handleCreateDebate = () => {
+    setIsCreatePopupOpen(true);
+  };
+
+  const handleClosePopup = () => {
+    setIsCreatePopupOpen(false);
+  };
+
+  const handleCategoryChange = (mainCategory: string, subCategory: string) => {
+    setSelectedMainCategory(mainCategory);
+    setSelectedSubCategory(subCategory);
   };
 
   return (
@@ -69,16 +128,22 @@ const MainPage: React.FC = () => {
           </HeaderTop>
           <HeaderBottom>
             <Nav>
-              <NavItem>문화</NavItem>
-              <NavItem>경제</NavItem>
-              <NavItem>국제/외교</NavItem>
-              <NavItem>산업</NavItem>
-              <NavItem>세계</NavItem>
-              <NavItem>기후/환경</NavItem>
-              <NavItem>과학/기술</NavItem>
-              <NavItem>인문</NavItem>
-              <NavItem>건강/의료</NavItem>
-              <NavItem>토론 아카이브</NavItem>
+              {navCategories.map((cat, idx) => (
+                <NavItem
+                  key={cat.main}
+                  onMouseEnter={() => setNavHoverIndex(idx)}
+                  onMouseLeave={() => setNavHoverIndex(null)}
+                >
+                  {cat.main}
+                  {navHoverIndex === idx && (
+                    <SubMenu>
+                      {cat.sub.map(sub => (
+                        <SubMenuItem key={sub}>{sub}</SubMenuItem>
+                      ))}
+                    </SubMenu>
+                  )}
+                </NavItem>
+              ))}
             </Nav>
           </HeaderBottom>
         </HeaderRight>
@@ -196,6 +261,36 @@ const MainPage: React.FC = () => {
         </RightContent>
       </MainContent>
       <Footer>footer</Footer>
+      <FloatingButton onClick={handleCreateDebate}>
+        <FiPlus size={20} style={{ marginRight: '8px' }} />
+        새 토론방 만들기
+      </FloatingButton>
+      {isCreatePopupOpen && (
+        <LayerPopup>
+          <PopupOverlay onClick={handleClosePopup} />
+          <PopupContent>
+            <PopupHeader>
+              <PopupTitle>토론방 생성</PopupTitle>
+              <CloseButton onClick={handleClosePopup}>×</CloseButton>
+            </PopupHeader>
+            <PopupBody>
+              <FormGroup>
+                <Label>토론 제목</Label>
+                <Input placeholder="토론 제목을 입력하세요" />
+              </FormGroup>
+              <FormGroup>
+                <Label>카테고리</Label>
+                <CategorySelect onCategoryChange={handleCategoryChange} />
+              </FormGroup>
+              <FormGroup>
+                <Label>토론 설명</Label>
+                <TextArea placeholder="토론에 대한 설명을 입력하세요" rows={10} />
+              </FormGroup>
+              <CreateButton>토론방 생성하기</CreateButton>
+            </PopupBody>
+          </PopupContent>
+        </LayerPopup>
+      )}
     </Wrapper>
   );
 };
@@ -337,6 +432,7 @@ const NavItem = styled.div`
   border-radius: 6px;
   padding: 0.5rem 0.7rem;
   transition: background 0.15s, color 0.15s;
+  position: relative;
   &:hover {
     color: ${MAIN_COLOR};
     background: ${POINT_BG};
@@ -575,5 +671,172 @@ const Dot = styled.div<{ active?: boolean }>`
   border-radius: 50%;
   background: ${({ active }) => (active ? '#007aff' : '#e0e0e0')};
   transition: background 0.2s;
+`;
+const FloatingButton = styled.button`
+  position: fixed;
+  bottom: 2.5rem;
+  right: 2.5rem;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  background: ${MAIN_COLOR};
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+  z-index: 100;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 122, 255, 0.4);
+  }
+`;
+const LayerPopup = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+const PopupOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+`;
+const PopupContent = styled.div`
+  position: relative;
+  background: white;
+  border-radius: 1rem;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 1001;
+`;
+const PopupHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 1.5rem;
+  border-bottom: 1px solid #eee;
+`;
+const PopupTitle = styled.h2`
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #222;
+  margin: 0;
+`;
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #888;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #f5f5f5;
+    color: #d32f2f;
+  }
+`;
+const PopupBody = styled.div`
+  padding: 1.5rem;
+`;
+const FormGroup = styled.div`
+  margin-bottom: 1.2rem;
+`;
+const Label = styled.label`
+  display: block;
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+`;
+const Input = styled.input`
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #000000;
+  transition: border-color 0.2s;
+  background: white;
+
+  &:focus {
+    outline: none;
+    border-color: ${MAIN_COLOR};
+  }
+`;
+const TextArea = styled.textarea`
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #000000;
+  transition: border-color 0.2s;
+  resize: none;
+  height: 240px;
+  background: white;
+
+  &:focus {
+    outline: none;
+    border-color: ${MAIN_COLOR};
+  }
+`;
+const CreateButton = styled.button`
+  width: 100%;
+  padding: 1rem;
+  background: ${MAIN_COLOR};
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 1rem;
+
+  &:hover {
+    background: #0056b3;
+  }
+`;
+const SubMenu = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  min-width: 180px;
+  z-index: 10;
+  padding: 0.5rem 0;
+`;
+const SubMenuItem = styled.div`
+  padding: 0.5rem 1.2rem;
+  color: #222;
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+  &:hover {
+    background: ${POINT_BG};
+    color: ${MAIN_COLOR};
+  }
 `;
 export default MainPage; 
