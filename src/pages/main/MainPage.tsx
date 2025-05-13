@@ -104,10 +104,6 @@ const MainPage: React.FC = () => {
     setSelectedSubCategory(subCategory);
   };
 
-  const handleArchiveClick = () => {
-    navigate('/archive');
-  };
-
   return (
     <Wrapper>
       <MainHeader />

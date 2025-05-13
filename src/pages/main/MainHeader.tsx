@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { FiSearch } from 'react-icons/fi';
+import { FiSearch, FiPlus  } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import CategorySelect from '../../components/CategorySelect';
 
 const MAIN_COLOR = '#007aff';
 const POINT_BG = '#f0f6ff';
@@ -11,6 +12,45 @@ const breakpoints = {
   mobile: '@media (max-width: 768px)',
   small: '@media (max-width: 480px)',
 };
+// 카테고리 데이터 (CategorySelect와 동일)
+const navCategories = [
+  {
+    main: '문화',
+    sub: ['대중문화/엔터테인먼트', '문학/에세이', '예술/디자인', '소셜', '연애', '스포츠']
+  },
+  {
+    main: '경제',
+    sub: ['경제 일반', '고용/노동시장', '금융/화폐', '부동산/자산', '소비/물가']
+  },
+  {
+    main: '사회',
+    sub: ['사회/시사', '정치', '인권/복지', '젠더/가족', '사건·사고 및 사회현상']
+  },
+  {
+    main: '국제/외교',
+    sub: ['외교/안보', '국제 갈등/협력', '글로벌 경제·무역', '국제 인권/정책', '국제기구/세계 질서']
+  },
+  {
+    main: '산업',
+    sub: ['산업구조/노동', 'IT산업/콘텐츠 산업', '제조/중공업', '유통/물류', '스타트업/창업']
+  },
+  {
+    main: '기후/환경',
+    sub: ['기후변화/탄소중립', '에너지 정책', '생태계 보호', '환경오염', '환경 윤리']
+  },
+  {
+    main: '과학/기술',
+    sub: ['인공지능/로봇', '생명과학/유전공학', '정보보안/데이터', '우주/물리/기초과학', '일반 기술']
+  },
+  {
+    main: '인문',
+    sub: ['철학', '현대사상', '종교', '자기성찰·자기계발']
+  },
+  {
+    main: '생활',
+    sub: ['동물', '음식', '여행', '취미', '육아']
+  }
+];
 
 interface MainHeaderProps {
   nickname?: string;
@@ -30,6 +70,9 @@ const MainHeader: React.FC<MainHeaderProps> = ({ nickname = '닉네임' }) => {
   const handleArchiveClick = () => {
     navigate('/archive');
   };
+
+  const [navHoverIndex, setNavHoverIndex] = useState<number|null>(null);
+
   return (
     <Header>
       <LogoBox>
@@ -48,20 +91,29 @@ const MainHeader: React.FC<MainHeaderProps> = ({ nickname = '닉네임' }) => {
             <SearchBtn onClick={handleSearch}>검색</SearchBtn>
           </SearchArea>
           <AuthBox>
-            <AuthBtn>{nickname}</AuthBtn>
+            {/* <AuthBtn>{nickname}</AuthBtn> */}
+            <AuthBtn>로그인</AuthBtn>
+            <AuthBtn>회원가입</AuthBtn>
           </AuthBox>
         </HeaderTop>
         <HeaderBottom>
           <Nav>
-            <NavItem>문화</NavItem>
-            <NavItem>경제</NavItem>
-            <NavItem>국제/외교</NavItem>
-            <NavItem>산업</NavItem>
-            <NavItem>세계</NavItem>
-            <NavItem>기후/환경</NavItem>
-            <NavItem>과학/기술</NavItem>
-            <NavItem>인문</NavItem>
-            <NavItem>건강/의료</NavItem>
+            {navCategories.map((cat, idx) => (
+                <NavItem
+                  key={cat.main}
+                  onMouseEnter={() => setNavHoverIndex(idx)}
+                  onMouseLeave={() => setNavHoverIndex(null)}
+                >
+                  {cat.main}
+                  {navHoverIndex === idx && (
+                    <SubMenu>
+                      {cat.sub.map(sub => (
+                        <SubMenuItem key={sub}>{sub}</SubMenuItem>
+                      ))}
+                    </SubMenu>
+                  )}
+                </NavItem>
+              ))}
             <NavItem onClick={handleArchiveClick}>토론 아카이브</NavItem>
           </Nav>
         </HeaderBottom>
@@ -190,6 +242,7 @@ const NavItem = styled.div`
   border-radius: 6px;
   padding: 0.5rem 0.7rem;
   transition: background 0.15s, color 0.15s;
+  position: relative;
   &:hover {
     color: ${MAIN_COLOR};
     background: ${POINT_BG};
@@ -211,6 +264,29 @@ const AuthBtn = styled.button`
   font-weight: 600;
   margin-left: 0.2rem;
   transition: background 0.15s, color 0.15s;
+  &:hover {
+    background: ${POINT_BG};
+    color: ${MAIN_COLOR};
+  }
+`;
+const SubMenu = styled.div`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  min-width: 180px;
+  z-index: 10;
+  padding: 0.5rem 0;
+`;
+const SubMenuItem = styled.div`
+  padding: 0.5rem 1.2rem;
+  color: #222;
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
   &:hover {
     background: ${POINT_BG};
     color: ${MAIN_COLOR};
