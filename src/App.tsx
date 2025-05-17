@@ -14,7 +14,8 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<MainPage />} />
+        {/* <Route path="/home" element={<Home />} /> */}
         <Route path="/main" element={<MainPage />} />
         <Route path="/discussion" element={<DiscussionRoom />} />
         <Route path="/discussion/vote" element={<VotePage />} />
@@ -22,7 +23,7 @@ const App: React.FC = () => {
         <Route path="/archive" element={<ArchivePage />} />
         <Route path="/discussion/lobby" element={<DebateLobby />} />
         <Route path="/discussion/outcome" element={<OutcomePage />} />
-        <Route path="*" element={<Home />} />
+        <Route path="*" element={<MainPage />} />
       </Routes>
     </Router>
   );

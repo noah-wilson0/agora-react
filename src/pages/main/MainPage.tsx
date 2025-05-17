@@ -104,6 +104,10 @@ const MainPage: React.FC = () => {
     setSelectedSubCategory(subCategory);
   };
 
+  const handleDebateClick = () => {
+    navigate('/discussion');
+  };
+
   return (
     <Wrapper>
       <MainHeader />
@@ -123,7 +127,7 @@ const MainPage: React.FC = () => {
                 </ArrowBtn>
                 <LiveDebateList>
                   {liveDebates.map((debate, i) => (
-                    <LiveDebateCard key={i}>
+                    <LiveDebateCard key={i} onClick={handleDebateClick}>
                       <LiveStatus status={debate.status}>{debate.status}</LiveStatus>
                       <LiveTime>{debate.time}</LiveTime>
                       <LiveTitle>{debate.title}</LiveTitle>
@@ -156,7 +160,7 @@ const MainPage: React.FC = () => {
             <SectionTitle>AI 추천 토론방</SectionTitle>
             <CardList>
               {aiDebates.map((debate, i) => (
-                <DebateCard key={i}>
+                <DebateCard key={i} onClick={handleDebateClick}>
                   <CardTop>
                     <span>{debate.category}</span>
                     <span>{debate.status}</span>
@@ -174,7 +178,7 @@ const MainPage: React.FC = () => {
             <SectionTitle>문화</SectionTitle>
             <CardList>
               {cultureDebates.map((debate, i) => (
-                <DebateCard key={i}>
+                <DebateCard key={i} onClick={handleDebateClick}>
                   <CardTop>
                     <span>{debate.category}</span>
                     <span>{debate.status}</span>
@@ -192,7 +196,7 @@ const MainPage: React.FC = () => {
             <SectionTitle>경제</SectionTitle>
             <CardList>
               {economyDebates.map((debate, i) => (
-                <DebateCard key={i}>
+                <DebateCard key={i} onClick={handleDebateClick}>
                   <CardTop>
                     <span>{debate.category}</span>
                     <span>{debate.status}</span>

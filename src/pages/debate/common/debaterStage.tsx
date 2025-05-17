@@ -1,21 +1,32 @@
 import React from 'react';
 import styled from '@emotion/styled';
+import { useNavigate } from 'react-router-dom';
 
 import logoImg from '../../../assets/logo.png';
 import audienceImg from '../../../assets/audience.png';
+
+const MAIN_COLOR = '#007aff';
 
 interface DebaterStageProps {
   participantCount: number;
 }
 
 const DebaterStage: React.FC<DebaterStageProps> = ({ participantCount }) => {
+  const navigate = useNavigate();
+
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
   return (
     <Header>
       <Left>
         <ExitButton>토론나가기</ExitButton>
       </Left>
       <Center>
-        <Logo src={logoImg} alt="로고" />
+        <LogoBox>
+          <LogoText as="button" onClick={() => navigate('/')}>AGORA</LogoText>
+        </LogoBox>
       </Center>
       <Right>
         <AudienceIcon src={audienceImg} alt="관전자" />
@@ -73,12 +84,35 @@ const ExitButton = styled.button`
     background: #f5f5f5;
   }
 `;
-
-const Logo = styled.img`  height: 38px;
-  background: #ddd;
-  border-radius: 8px;
-  padding: 0 2.5rem;
-  object-fit: contain;
+// Logo -> LogoBox로 변경 (정호준)
+// const Logo = styled.img`
+//   height: 38px;
+//   background: #ddd;
+//   border-radius: 8px;
+//   padding: 0 2.5rem;
+//   object-fit: contain;
+//   cursor: pointer;
+//   transition: opacity 0.2s;
+//   &:hover {
+//     opacity: 0.8;
+//   }
+// `;
+const LogoBox = styled.div`
+  width: 130px;
+  min-width: 110px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.5rem 0 0.5rem 0;
+`;
+const LogoText = styled.div`
+  font-size: 2rem;
+  font-weight: 900;
+  color: ${MAIN_COLOR};
+  background: white;
+  letter-spacing: 0.1em;
 `;
 
 const AudienceIcon = styled.img`

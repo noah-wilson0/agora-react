@@ -76,7 +76,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ nickname = '닉네임' }) => {
   return (
     <Header>
       <LogoBox>
-        <LogoText as="button" onClick={() => navigate('/main')}>AGORA</LogoText>
+        <LogoText as="button" onClick={() => navigate('/')}>AGORA</LogoText>
       </LogoBox>
       <HeaderRight>
         <HeaderTop>
