@@ -93,7 +93,6 @@ const MainHeader: React.FC<MainHeaderProps> = ({ nickname = '닉네임' }) => {
           <AuthBox>
             {/* <AuthBtn>{nickname}</AuthBtn> */}
             <AuthBtn onClick={() => navigate('/user/login')}>로그인</AuthBtn>
-            <AuthBtn>회원가입</AuthBtn>
           </AuthBox>
         </HeaderTop>
         <HeaderBottom>

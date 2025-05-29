@@ -28,8 +28,7 @@ const Login: React.FC = () => {
         }),
       });
       if (res.ok) {
-        // 로그인 성공: 메인으로 이동
-        window.location.href = '/main'; // 새로고침 포함 이동(헤더 갱신)
+        // 로그인 성공: 메인으로 이동// name을 쿼리로 전달
       } else {
         alert('로그인 실패: 아이디 또는 비밀번호를 확인하세요.');
       }

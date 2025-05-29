@@ -77,7 +77,7 @@ const breakpoints = {
 const MainPage: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [userInfo, setUserInfo] = useState(null);
+  const [userInfo, setUserInfo] = useState<any>(null);
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -142,7 +142,7 @@ const MainPage: React.FC = () => {
 
   return (
     <Wrapper>
-      {!isLoading && (isLoggedIn ? <MainHeaderLogin nickname={userInfo?.nickname} /> : <MainHeader />)}
+      {!isLoading && (isLoggedIn ? <MainHeaderLogin name={userInfo?.name} /> : <MainHeader />)}
       <MainContent>
         <LeftContent>
           <Section>
