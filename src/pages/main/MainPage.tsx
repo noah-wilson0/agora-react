@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { FiSearch, FiPlus } from 'react-icons/fi';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
@@ -6,6 +6,11 @@ import { useNavigate } from 'react-router-dom';
 import CategorySelect from '../../components/CategorySelect';
 import MainHeader from './MainHeader';
 import { useDebate } from '../../contexts/debateInfoContext';
+import MainHeaderLogin from './MainHeaderLogin';
+import axios from 'axios';
+
+// axios 기본 설정
+axios.defaults.withCredentials = true;
 
 // 더미 데이터
 const liveDebates = [
@@ -71,6 +76,33 @@ const breakpoints = {
 };
 
 const MainPage: React.FC = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [userInfo, setUserInfo] = useState<any>(null);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/auth/me', {
+          withCredentials: true
+        });
+        if (response.status === 200) {
+          setIsLoggedIn(true);
+          setUserInfo(response.data);
+        }
+      } catch (error) {
+        setIsLoggedIn(false);
+        setUserInfo(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
+
+  console.log('isLoggedIn:', isLoggedIn, 'isLoading:', isLoading, 'userInfo:', userInfo);
+
   // 슬라이드 인덱스 예시 (실제 구현 시 useState로 관리)
   const slideIndex = 0;
   const totalSlides = 3;
@@ -137,7 +169,7 @@ const MainPage: React.FC = () => {
 
   return (
     <Wrapper>
-      <MainHeader />
+      {!isLoading && (isLoggedIn ? <MainHeaderLogin name={userInfo?.name} /> : <MainHeader />)}
       <MainContent>
         <LeftContent>
           <Section>
@@ -266,8 +298,8 @@ const MainPage: React.FC = () => {
             <PopupBody>
               <FormGroup>
                 <Label>토론 제목</Label>
-                <Input 
-                  placeholder="토론 제목을 입력하세요" 
+                <Input
+                  placeholder="토론 제목을 입력하세요"
                   value={debateTitle}
                   onChange={(e) => setDebateTitle(e.target.value)}
                 />
@@ -278,8 +310,8 @@ const MainPage: React.FC = () => {
               </FormGroup>
               <FormGroup>
                 <Label>토론 설명</Label>
-                <TextArea 
-                  placeholder="토론에 대한 설명을 입력하세요" 
+                <TextArea
+                  placeholder="토론에 대한 설명을 입력하세요"
                   rows={10}
                   value={debateDescription}
                   onChange={(e) => setDebateDescription(e.target.value)}
