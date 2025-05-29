@@ -3,6 +3,11 @@ import styled from '@emotion/styled';
 import { FiSearch, FiPlus  } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import CategorySelect from '../../components/CategorySelect';
+import axios from 'axios';
+
+interface MainHeaderLoginProps {
+  nickname?: string;
+}
 
 const MAIN_COLOR = '#007aff';
 const POINT_BG = '#f0f6ff';
@@ -52,11 +57,7 @@ const navCategories = [
   }
 ];
 
-interface MainHeaderProps {
-  nickname?: string;
-}
-
-const MainHeader: React.FC<MainHeaderProps> = ({ nickname = '닉네임' }) => {
+const MainHeader: React.FC<MainHeaderLoginProps> = ({ nickname = '닉네임' }) => {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
   const handleSearch = () => {
@@ -69,6 +70,18 @@ const MainHeader: React.FC<MainHeaderProps> = ({ nickname = '닉네임' }) => {
   };
   const handleArchiveClick = () => {
     navigate('/archive');
+  };
+
+  // 로그아웃 핸들러
+  const handleLogout = async () => {
+    try {
+      await axios.post('http://localhost:8080/members/logout', {}, {
+        withCredentials: true
+      });
+      navigate('/');
+    } catch (error) {
+      alert('로그아웃에 실패했습니다.');
+    }
   };
 
   const [navHoverIndex, setNavHoverIndex] = useState<number|null>(null);
@@ -92,8 +105,8 @@ const MainHeader: React.FC<MainHeaderProps> = ({ nickname = '닉네임' }) => {
           </SearchArea>
           <AuthBox>
             {/* <AuthBtn>{nickname}</AuthBtn> */}
-            <AuthBtn onClick={() => navigate('/user/login')}>로그인</AuthBtn>
-            <AuthBtn>회원가입</AuthBtn>
+            <AuthBtn onClick={() => navigate('/user/myPage')}>마이페이지</AuthBtn>
+            <AuthBtn onClick={handleLogout}>로그아웃</AuthBtn>
           </AuthBox>
         </HeaderTop>
         <HeaderBottom>

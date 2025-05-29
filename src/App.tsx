@@ -11,6 +11,8 @@ import './App.css'
 import ArchivePage from './pages/main/ArchivePage';
 import MyPage from './pages/user/MyPage';
 import DebateHistory from './pages/user/DebateHistory';
+import Login from './pages/user/Login';
+import SignUp from './pages/user/SignUp';
 
 const App: React.FC = () => {
   return (
@@ -26,6 +28,8 @@ const App: React.FC = () => {
         <Route path="/discussion/lobby" element={<DebateLobby />} />
         <Route path="/discussion/outcome" element={<OutcomePage />} />
         <Route path="*" element={<MainPage />} />
+        <Route path="/user/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
         {/* /mypage 경로에서 MyPage를 표시하고, 그 안에서 DebateHistory를 중첩해서 표시 */}
         <Route path="/mypage" element={<MyPage />}>
           <Route path="history" element={<DebateHistory />} />

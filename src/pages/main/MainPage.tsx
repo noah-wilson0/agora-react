@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { FiSearch, FiPlus } from 'react-icons/fi';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import CategorySelect from '../../components/CategorySelect';
 import MainHeader from './MainHeader';
+import MainHeaderLogin from './MainHeaderLogin';
+import axios from 'axios';
+
+// axios 기본 설정
+axios.defaults.withCredentials = true;
 
 // 더미 데이터
 const liveDebates = [
@@ -70,6 +75,33 @@ const breakpoints = {
 };
 
 const MainPage: React.FC = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [userInfo, setUserInfo] = useState(null);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/auth/me', {
+          withCredentials: true
+        });
+        if (response.status === 200) {
+          setIsLoggedIn(true);
+          setUserInfo(response.data);
+        }
+      } catch (error) {
+        setIsLoggedIn(false);
+        setUserInfo(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
+
+  console.log('isLoggedIn:', isLoggedIn, 'isLoading:', isLoading, 'userInfo:', userInfo);
+
   // 슬라이드 인덱스 예시 (실제 구현 시 useState로 관리)
   const slideIndex = 0;
   const totalSlides = 3;
@@ -110,7 +142,7 @@ const MainPage: React.FC = () => {
 
   return (
     <Wrapper>
-      <MainHeader />
+      {!isLoading && (isLoggedIn ? <MainHeaderLogin nickname={userInfo?.nickname} /> : <MainHeader />)}
       <MainContent>
         <LeftContent>
           <Section>
