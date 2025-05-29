@@ -5,6 +5,7 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import CategorySelect from '../../components/CategorySelect';
 import MainHeader from './MainHeader';
+import { useDebate } from '../../contexts/debateInfoContext';
 
 // 더미 데이터
 const liveDebates = [
@@ -77,6 +78,9 @@ const MainPage: React.FC = () => {
   // 검색어 상태 및 라우터
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
+  const [debateTitle, setDebateTitle] = useState('');
+  const [debateDescription, setDebateDescription] = useState('');
+
   const handleSearch = () => {
     if (search.trim()) {
       navigate(`/search?keyword=${encodeURIComponent(search)}`);
@@ -97,6 +101,29 @@ const MainPage: React.FC = () => {
 
   const handleClosePopup = () => {
     setIsCreatePopupOpen(false);
+    setDebateTitle('');
+    setDebateDescription('');
+    setSelectedMainCategory('');
+    setSelectedSubCategory('');
+  };
+
+  const { setDebateData } = useDebate();
+
+  const handleSubmitDebate = () => {
+    if (!debateTitle.trim() || !selectedMainCategory || !selectedSubCategory || !debateDescription.trim()) {
+      alert('모든 필드를 입력해주세요.');
+      return;
+    }
+
+    const debateData = {
+      title: debateTitle,
+      category: `${selectedMainCategory} > ${selectedSubCategory}`,
+      description: debateDescription
+    };
+
+    setDebateData(debateData);
+    navigate('/discussion/lobby');
+    handleClosePopup();
   };
 
   const handleCategoryChange = (mainCategory: string, subCategory: string) => {
@@ -239,7 +266,11 @@ const MainPage: React.FC = () => {
             <PopupBody>
               <FormGroup>
                 <Label>토론 제목</Label>
-                <Input placeholder="토론 제목을 입력하세요" />
+                <Input 
+                  placeholder="토론 제목을 입력하세요" 
+                  value={debateTitle}
+                  onChange={(e) => setDebateTitle(e.target.value)}
+                />
               </FormGroup>
               <FormGroup>
                 <Label>카테고리</Label>
@@ -247,9 +278,14 @@ const MainPage: React.FC = () => {
               </FormGroup>
               <FormGroup>
                 <Label>토론 설명</Label>
-                <TextArea placeholder="토론에 대한 설명을 입력하세요" rows={10} />
+                <TextArea 
+                  placeholder="토론에 대한 설명을 입력하세요" 
+                  rows={10}
+                  value={debateDescription}
+                  onChange={(e) => setDebateDescription(e.target.value)}
+                />
               </FormGroup>
-              <CreateButton>토론방 생성하기</CreateButton>
+              <CreateButton onClick={handleSubmitDebate}>토론방 생성하기</CreateButton>
             </PopupBody>
           </PopupContent>
         </LayerPopup>

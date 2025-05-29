@@ -24,7 +24,6 @@ const availableParticipants: Record<'찬성' | '반대', Participant[]> = {
 };
 
 const maxCount = 3;
-const debateInfo = '미드는 황족 라인이다';
 
 const DebateLobbyPage: React.FC = () => {
     const navigate = useNavigate();
@@ -98,7 +97,7 @@ const DebateLobbyPage: React.FC = () => {
                             </ChatScrollArea>
                         </DebateChatBox>
                         <DebateInfoSpacer />
-                        <DebateInfoBox info={debateInfo} />
+                        <DebateInfoBox />
                     </DebateLeft>
                     <ChatingPanelWrapper>
                         <ChatingPanel />
@@ -117,7 +116,6 @@ const Wrapper = styled.div`
   padding: 0;
   margin: 0;
   overflow: hidden;
-  justify-content: center;
 `;
 
 const Content = styled.div`
@@ -125,18 +123,16 @@ const Content = styled.div`
   flex: 1 1 0;
   min-height: 0;
   height: 100%;
-  align-items: center;
 `;
 
 const DebateArea = styled.div`
   flex: 1 1 0;
   display: flex;
-  padding: 4rem 2.2rem 2.2rem 2.2rem;
+  padding: 2.2rem 2.2rem 2.2rem 2.2rem;
   gap: 2.2rem;
   min-width: 0;
   min-height: 0;
   height: 100%;
-  align-items: center;
 `;
 
 const DebateLeft = styled.div`
@@ -147,7 +143,6 @@ const DebateLeft = styled.div`
   min-height: 0;
   height: 100%;
   overflow-y: hidden;
-  justify-content: center;
 `;
 
 const DebateChatBox = styled.div`

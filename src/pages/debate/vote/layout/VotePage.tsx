@@ -13,7 +13,6 @@ import useTimerNavigate from '../../common/useTimerNavigate';
  */
 const VotePage: React.FC = () => {
   // 샘플 데이터
-  const debateInfo = "미드는 황족 라인이다";
   const proSummary = "찬성측 모든 의견 요약...";
   const conSummary = "반대측 모든 의견 요약...";
 
@@ -53,7 +52,7 @@ const VotePage: React.FC = () => {
               </ChatScrollArea>
             </DebateChatBox>
             <DebateInfoSpacer />
-            <DebateInfoBox info={debateInfo} />
+            <DebateInfoBox />
           </DebateLeft>
           <ChatingPanelWrapper>
             <ChatingPanel />

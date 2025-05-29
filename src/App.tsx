@@ -9,23 +9,26 @@ import DebateLobby from './pages/debate/lobby/layout/DebateLobbyPage';
 import OutcomePage from './pages/debate/outcome/layout/OutcomePage';
 import './App.css'
 import ArchivePage from './pages/main/ArchivePage';
+import { DebateProvider } from './contexts/debateInfoContext';
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<MainPage />} />
-        {/* <Route path="/home" element={<Home />} /> */}
-        <Route path="/main" element={<MainPage />} />
-        <Route path="/discussion" element={<DiscussionRoom />} />
-        <Route path="/discussion/vote" element={<VotePage />} />
-        <Route path="/search" element={<SearchResultPage />} />
-        <Route path="/archive" element={<ArchivePage />} />
-        <Route path="/discussion/lobby" element={<DebateLobby />} />
-        <Route path="/discussion/outcome" element={<OutcomePage />} />
-        <Route path="*" element={<MainPage />} />
-      </Routes>
-    </Router>
+    <DebateProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<MainPage />} />
+          {/* <Route path="/home" element={<Home />} /> */}
+          <Route path="/main" element={<MainPage />} />
+          <Route path="/discussion" element={<DiscussionRoom />} />
+          <Route path="/discussion/vote" element={<VotePage />} />
+          <Route path="/search" element={<SearchResultPage />} />
+          <Route path="/archive" element={<ArchivePage />} />
+          <Route path="/discussion/lobby" element={<DebateLobby />} />
+          <Route path="/discussion/outcome" element={<OutcomePage />} />
+          <Route path="*" element={<MainPage />} />
+        </Routes>
+      </Router>
+    </DebateProvider>
   );
 };
 

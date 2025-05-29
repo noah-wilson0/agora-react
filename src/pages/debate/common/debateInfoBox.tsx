@@ -1,18 +1,19 @@
 import React from 'react';
 import styled from '@emotion/styled';
+import { useDebate } from '../../../contexts/debateInfoContext';
 
-interface DebateInfoBoxProps {
-  info: string;
-}
+const DebateInfoBox: React.FC = () => {
+  const { debateData } = useDebate();
+  const { title, category, description } = debateData;
 
-const DebateInfoBox: React.FC<DebateInfoBoxProps> = ({ info }) => {
   return (
     <Box>
-      <InfoTitle>
-        토론 정보
-        <InfoDivider />
-      </InfoTitle>
-      <InfoContent>{info}</InfoContent>
+      <InfoHeader>
+        <CategoryTag>{category}</CategoryTag>
+      </InfoHeader>
+      <InfoTitle>{title}</InfoTitle>
+      <InfoDivider />
+      <InfoContent>{description}</InfoContent>
     </Box>
   );
 };
@@ -20,8 +21,8 @@ const DebateInfoBox: React.FC<DebateInfoBoxProps> = ({ info }) => {
 const Box = styled.div`
   background: #ffffff;
   border-radius: 0.8rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  padding: 1.1rem 1.5rem 1.3rem 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  padding: 1.2rem;
   display: flex;
   flex-direction: column;
   margin-bottom: 1.2rem;
@@ -31,14 +32,28 @@ const Box = styled.div`
   cursor: default;
 `;
 
-const InfoTitle = styled.div`
-  font-size: 0.92rem;
-  color: #888;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.01em;
+const InfoHeader = styled.div`
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  margin-bottom: 0.5rem;
+`;
+
+const CategoryTag = styled.div`
+  background: #f0f6ff;
+  color: #007aff;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: inline-block;
+`;
+
+const InfoTitle = styled.div`
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 0.6rem;
+  line-height: 1.4;
   user-select: none;
   cursor: default;
 `;
@@ -46,18 +61,19 @@ const InfoTitle = styled.div`
 const InfoDivider = styled.div`
   width: 100%;
   height: 1px;
-  background: #e0e0e0;
-  margin-top: 0.4rem;
+  background: #e8e8e8;
+  margin: 0.5rem 0;
   user-select: none;
   cursor: default;
 `;
 
 const InfoContent = styled.div`
-  font-size: 1.08rem;
-  color: #333;
-  min-height: 80px;
-  display: flex;
-  align-items: center;
+  font-size: 1.1rem;
+  color: #444;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  letter-spacing: -0.01em;
   user-select: none;
   cursor: default;
 `;
