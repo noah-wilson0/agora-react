@@ -5,7 +5,7 @@ import ChatingPanel from '../../common/chatingPanel';
 import DebateChatingPanel from '../fragments/debateChatingPanel';
 import { ChatMessage } from '../../common/debateChatingMessage';
 import useTimerNavigate from '../../common/useTimerNavigate';
-
+import DebateInfoBox from '../../common/debateInfoBox';
 
 export const debateMessages: ChatMessage[] = [
   // { team: 'moderator', username: '사회자', message: '예시)토론이 시작되었습니다. 찬성측부터 발언해주세요.', timestamp: '05:50' },
@@ -14,10 +14,6 @@ export const debateMessages: ChatMessage[] = [
   // { team: '찬성', username: '찬성측 002', message: '찬성측 두 번째 메시지(왼쪽)', timestamp: '05:52' },
   // { team: '반대', username: '반대측 003', message: '반대측 두 번째 메시지(오른쪽)', timestamp: '05:53' }
 ];
-
-const debateInfo = '미드는 황족 라인이다';
-
-
 
 const DiscussionRoom: React.FC = () => {
   const timerSec = useTimerNavigate(10, '/discussion/vote');
@@ -29,19 +25,12 @@ const DiscussionRoom: React.FC = () => {
         <DebateArea>
           <DebateLeft>
             <DebateChatBox>
-
               <ChatScrollArea>
                 <DebateChatingPanel />
               </ChatScrollArea>
             </DebateChatBox>
             <DebateInfoSpacer />
-            <DebateInfoBox>
-              <InfoTitle>
-                토론 정보
-                <InfoDivider />
-              </InfoTitle>
-              <InfoContent>{debateInfo}</InfoContent>
-            </DebateInfoBox>
+            <DebateInfoBox />
           </DebateLeft>
           <ChatingPanelWrapper>
             <ChatingPanel />
@@ -114,51 +103,6 @@ const DebateInfoSpacer = styled.div`
   height: 0.5rem;
   flex-shrink: 0;
   flex-grow: 0;
-`;
-
-const DebateInfoBox = styled.div`
-  background: #ffffff;
-  border-radius: 0.8rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  padding: 1.1rem 1.5rem 1.3rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1.2rem;
-  min-height: 80px;
-  max-width: 100%;
-  user-select: none;
-  cursor: default;
-`;
-
-const InfoTitle = styled.div`
-  font-size: 0.92rem;
-  color: #888;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.01em;
-  display: flex;
-  flex-direction: column;
-  user-select: none;
-  cursor: default;
-`;
-
-const InfoDivider = styled.div`
-  width: 100%;
-  height: 1px;
-  background: #e0e0e0;
-  margin-top: 0.4rem;
-  user-select: none;
-  cursor: default;
-`;
-
-const InfoContent = styled.div`
-  font-size: 1.08rem;
-  color: #333;
-  min-height: 80px;
-  display: flex;
-  align-items: center;
-  user-select: none;
-  cursor: default;
 `;
 
 const ChatingPanelWrapper = styled.div`

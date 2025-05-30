@@ -9,6 +9,7 @@ import DebateLobby from './pages/debate/lobby/layout/DebateLobbyPage';
 import OutcomePage from './pages/debate/outcome/layout/OutcomePage';
 import './App.css'
 import ArchivePage from './pages/main/ArchivePage';
+import { DebateProvider } from './contexts/debateInfoContext';
 import MyPage from './pages/user/MyPage';
 import DebateHistory from './pages/user/DebateHistory';
 import Login from './pages/user/Login';
