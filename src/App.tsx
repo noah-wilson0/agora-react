@@ -17,26 +17,29 @@ import SignUp from './pages/user/SignUp';
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<MainPage />} />
-        {/* <Route path="/home" element={<Home />} /> */}
-        <Route path="/main" element={<MainPage />} />
-        <Route path="/discussion" element={<DiscussionRoom />} />
-        <Route path="/discussion/vote" element={<VotePage />} />
-        <Route path="/search" element={<SearchResultPage />} />
-        <Route path="/archive" element={<ArchivePage />} />
-        <Route path="/discussion/lobby" element={<DebateLobby />} />
-        <Route path="/discussion/outcome" element={<OutcomePage />} />
-        <Route path="*" element={<MainPage />} />
-        <Route path="/user/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-        {/* /mypage 경로에서 MyPage를 표시하고, 그 안에서 DebateHistory를 중첩해서 표시 */}
-        <Route path="/mypage" element={<MyPage />}>
-          <Route path="history" element={<DebateHistory />} />
-        </Route>
-      </Routes>
-    </Router>
+      <DebateProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<MainPage />} />
+            {/* <Route path="/home" element={<Home />} /> */}
+            <Route path="/main" element={<MainPage />} />
+            <Route path="/discussion" element={<DiscussionRoom />} />
+            <Route path="/discussion/vote" element={<VotePage />} />
+            <Route path="/search" element={<SearchResultPage />} />
+            <Route path="/archive" element={<ArchivePage />} />
+            <Route path="/discussion/lobby" element={<DebateLobby />} />
+            <Route path="/discussion/outcome" element={<OutcomePage />} />
+            <Route path="*" element={<MainPage />} />
+            <Route path="/user/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            {/* /mypage 경로에서 MyPage를 표시하고, 그 안에서 DebateHistory를 중첩해서 표시 */}
+            <Route path="/mypage" element={<MyPage />}>
+              <Route path="history" element={<DebateHistory />} />
+            </Route>
+          </Routes>
+        </Router>
+      </DebateProvider>
+
   );
 };
 
