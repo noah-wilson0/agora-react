@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import DebateHistory from './DebateHistory';
 import EditProfile from './EditProfile';
+import CheckPassword from './CheckPassword';
 
 interface DebateType {
   id: number;
@@ -13,12 +16,33 @@ interface DebateType {
   result: string;
 }
 
+interface MemberInfo {
+  name: string;
+  username: string;
+  email: string;
+  gender: string;
+  birthday: string;
+  score: number;
+  level: number;
+  win: number;
+  lose: number;
+}
+
 const Container = styled.div`
   background: #fff;
   min-height: 100vh;
   font-family: 'Pretendard', sans-serif;
   display: flex;
+  flex-direction: column;
+`;
+
+const TopHeader = styled.header`
+  display: flex;
   flex-direction: row;
+  align-items: stretch;
+  background: #fff;
+  border-bottom: 2px solid #f0f6ff;
+  padding: 0.5rem 0 0 1.8rem;
 `;
 
 const SideBar = styled.div`
@@ -27,6 +51,7 @@ const SideBar = styled.div`
   background: #fff;
   border-right: 1px solid #eee;
   min-height: 100vh;
+  margin-top: 20px;
 `;
 
 const Main = styled.div`
@@ -34,6 +59,7 @@ const Main = styled.div`
   padding: 40px 48px 0 48px;
   background: #fff;
   min-height: 100vh;
+  margin-top: 20px;
 `;
 
 const Profile = styled.div`
@@ -92,6 +118,26 @@ const NavItem = styled.div<{active?: boolean}>`
   color: ${({active}) => (active ? '#222' : '#888')};
   border-bottom: ${({active}) => (active ? '2px solid #222' : 'none')};
   padding-bottom: 4px;
+  cursor: pointer;
+`;
+
+const LogoBox = styled.div`
+  width: 130px;
+  min-width: 110px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.5rem 0 0.5rem 0;
+`;
+
+const LogoText = styled.div`
+  font-size: 2rem;
+  font-weight: 900;
+  color: #007aff;
+  background: white;
+  letter-spacing: 0.1em;
   cursor: pointer;
 `;
 
@@ -202,47 +248,77 @@ function FavoriteList({ debates, setDebates }: { debates: DebateType[], setDebat
 export default function MyPage() {
   const [tab, setTab] = useState<'history' | 'favorite' | 'edit'>('history');
   const [debates, setDebates] = useState<DebateType[]>(initialDebates);
+  const [memberInfo, setMemberInfo] = useState<MemberInfo | null>(null);
+  const [editAuth, setEditAuth] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchMemberInfo = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/members/me', {
+          withCredentials: true
+        });
+        setMemberInfo(response.data);
+      } catch (error) {
+        console.error('사용자 정보를 가져오는데 실패했습니다:', error);
+        navigate('/');
+      }
+    };
+
+    fetchMemberInfo();
+  }, [navigate]);
+
+  const winRate = memberInfo
+    ? (memberInfo.win + memberInfo.lose === 0
+        ? '0.0'
+        : ((memberInfo.win / (memberInfo.win + memberInfo.lose)) * 100).toFixed(1))
+    : '0.0';
 
   return (
     <Container>
-      <SideBar>
-        <Profile>
-          <div style={{fontWeight: 700, fontSize: "1.1rem"}}>🔥 닉네임</div>
-          <div>OO승 OO패 (00.0%)</div>
-          <div>획득한 포인트 : 000포</div>
-        </Profile>
-        <Category>카테고리</Category>
-        <div>승리</div>
-        <div>패배</div>
-        <Category>분야별</Category>
-        <div>정치/사회</div>
-        <div>정치/산업</div>
-        <div>과학/기술</div>
-        <Category>세대별</Category>
-        <div>독서 토론</div>
-      </SideBar>
-      <Main>
-        <Header>
-          <div style={{color: "#b5c7a7", fontWeight: 700, fontSize: "1.1rem"}}>마이페이지</div>
-          <div style={{display: "flex", alignItems: "center", gap: 8}}>
-            <span style={{fontSize: 24}}>👤</span>
-            <span>닉네임</span>
+      <TopHeader>
+        <LogoBox>
+          <LogoText onClick={() => navigate('/')}>AGORA</LogoText>
+        </LogoBox>
+      </TopHeader>
+      <div style={{ display: 'flex' }}>
+        <SideBar>
+          <Profile>
+            <div style={{fontWeight: 700, fontSize: "1.1rem"}}>🔥 {memberInfo?.name || '로딩중...'}</div>
+            <div>{memberInfo ? `${memberInfo.win}승 ${memberInfo.lose}패 (${winRate}%)` : '로딩중...'}</div>
+            <div>획득한 점수 : {memberInfo?.score || 0}점</div>
+          </Profile>
+          <Category>카테고리</Category>
+          <div>승리</div>
+          <div>패배</div>
+          <Category>분야별</Category>
+          <div>정치/사회</div>
+          <div>정치/산업</div>
+          <div>과학/기술</div>
+          <Category>세대별</Category>
+          <div>독서 토론</div>
+        </SideBar>
+        <Main>
+          <Header>
+            <div style={{color: "#b5c7a7", fontWeight: 700, fontSize: "1.1rem"}}>마이페이지</div>
+          </Header>
+          <Nav>
+            <NavItem active={tab === 'history'} onClick={() => setTab('history')}>토론내역확인</NavItem>
+            <NavItem active={tab === 'favorite'} onClick={() => setTab('favorite')}>즐겨찾기</NavItem>
+            <NavItem active={tab === 'edit'} onClick={() => { setTab('edit'); setEditAuth(false); }}>개인정보 수정</NavItem>
+          </Nav>
+          <div style={{marginTop: 32}}>
+            {tab === 'history' && <DebateHistory debates={debates} setDebates={setDebates} />}
+            {tab === 'favorite' && <FavoriteList debates={debates} setDebates={setDebates} />}
+            {tab === 'edit' && (!editAuth
+              ? <CheckPassword onSuccess={() => setEditAuth(true)} />
+              : <EditProfile />
+            )}
           </div>
-        </Header>
-        <Nav>
-          <NavItem active={tab === 'history'} onClick={() => setTab('history')}>토론내역확인</NavItem>
-          <NavItem active={tab === 'favorite'} onClick={() => setTab('favorite')}>즐겨찾기</NavItem>
-          <NavItem active={tab === 'edit'} onClick={() => setTab('edit')}>개인정보 수정</NavItem>
-        </Nav>
-        <div style={{marginTop: 32}}>
-          {tab === 'history' && <DebateHistory debates={debates} setDebates={setDebates} />}
-          {tab === 'favorite' && <FavoriteList debates={debates} setDebates={setDebates} />}
-          {tab === 'edit' && <EditProfile />}
-        </div>
-        <Footer>footer</Footer>
+          <Footer>footer</Footer>
         </Main>
-        
-      </Container>
-    );
+      </div>
+    </Container>
+  );
 }
 

@@ -106,7 +106,7 @@ const MainHeader: React.FC<MainHeaderLoginProps> = ({ nickname = '닉네임', na
           </SearchArea>
           <AuthBox>
             {/* <AuthBtn>{nickname}</AuthBtn> */}
-            <AuthBtn onClick={() => navigate('/user/myPage')}>{name ? name : '마이페이지'}</AuthBtn>
+            <AuthBtn onClick={() => navigate('/myPage')}>{name ? name : '마이페이지'}</AuthBtn>
             <AuthBtn onClick={handleLogout}>로그아웃</AuthBtn>
           </AuthBox>
         </HeaderTop>
