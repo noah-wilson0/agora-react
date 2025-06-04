@@ -70,7 +70,9 @@ const MainHeader: React.FC<MainHeaderProps> = ({ nickname = '닉네임' }) => {
   const handleArchiveClick = () => {
     navigate('/archive');
   };
-
+  const handleChatClick = () => {
+    navigate('/chat/room1');
+  };
   const [navHoverIndex, setNavHoverIndex] = useState<number|null>(null);
 
   return (
@@ -94,6 +96,7 @@ const MainHeader: React.FC<MainHeaderProps> = ({ nickname = '닉네임' }) => {
             {/* <AuthBtn>{nickname}</AuthBtn> */}
             <AuthBtn>로그인</AuthBtn>
             <AuthBtn>회원가입</AuthBtn>
+            <AuthBtn onClick={handleChatClick}>채팅</AuthBtn>
           </AuthBox>
         </HeaderTop>
         <HeaderBottom>
