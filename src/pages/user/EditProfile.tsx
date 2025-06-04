@@ -1,5 +1,7 @@
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import UpdatePassword from './UpdatePassword';
+import axios from 'axios';
 
 const Container = styled.div`
   max-width: 480px;
@@ -73,32 +75,102 @@ const Button = styled.button`
   }
 `;
 
+interface MemberInfo {
+  name: string;
+  id: string;
+  email: string;
+  gender: string;
+  birthday: string;
+  score: number;
+  level: number;
+  win: number;
+  lose: number;
+}
+
 export default function EditProfile() {
   const [form, setForm] = useState({
-    id: 'gd8080',
-    password: '************',
-    email: 'gd8080@naver.com',
-    nickname: '두글자',
-    birth: '2001',
-    gender: '남자',
+    id: '',
+    email: '',
+    nickname: '',
+    birthYear: '',
+    birthMonth: '',
+    birthDay: '',
+    gender: '',
   });
+  const [showPwModal, setShowPwModal] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMemberInfo = async () => {
+      try {
+        const response = await axios.get<MemberInfo>('http://localhost:8080/members/me', { withCredentials: true });
+        const { name, id, email, gender, birthday } = response.data;
+        
+        // birthday를 yyyy-MM-dd 형식에서 분리
+        const [year, month, day] = birthday.split('-');
+        
+        setForm({
+          id:id,
+          email:email,
+          nickname: name,
+          birthYear: year,
+          birthMonth: month,
+          birthDay: day,
+          gender: gender === 'MALE' ? '남자' : '여자',
+        });
+      } catch (err) {
+        setError('회원정보를 불러오는데 실패했습니다.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMemberInfo();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    
+    try {
+      const formattedBirthday = `${form.birthYear}-${form.birthMonth.padStart(2, '0')}-${form.birthDay.padStart(2, '0')}`;
+      
+      await axios.patch('http://localhost:8080/members/update/change-info', {
+        name: form.nickname,
+        email: form.email,
+        gender: form.gender === "남자" ? "MALE" : "FEMALE",
+        birthday: formattedBirthday
+      }, { withCredentials: true });
+      
+      window.location.href = '/';
+    } catch (err: any) {
+      setError('회원정보 수정에 실패했습니다.');
+    }
+  };
+
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: '20px' }}>로딩 중...</div>;
+  }
+
   return (
     <Container>
       <Title>개인정보 수정</Title>
-      <Form>
+      <Form onSubmit={handleSubmit}>
         <Field>
           <Label htmlFor="id">아이디</Label>
           <Input id="id" name="id" value={form.id} onChange={handleChange} disabled />
         </Field>
 
         <Field>
-          <Label htmlFor="password">비밀번호</Label>
-          <Input id="password" name="password" type="password" value={form.password} onChange={handleChange} />
+          <Label>비밀번호</Label>
+          <Button type="button" style={{ background: '#888', marginBottom: 8 }} onClick={() => setShowPwModal(true)}>
+            비밀번호 변경
+          </Button>
         </Field>
 
         <Field>
@@ -112,12 +184,43 @@ export default function EditProfile() {
         </Field>
 
         <Field>
-          <Label htmlFor="birth">출생년도</Label>
-          <Select id="birth" name="birth" value={form.birth} onChange={handleChange}>
-            {Array.from({ length: 30 }, (_, i) => 2001 - i).map((year) => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </Select>
+          <Label>생년월일</Label>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Select 
+              name="birthYear" 
+              value={form.birthYear} 
+              onChange={handleChange}
+              style={{ flex: 2 }}
+            >
+              {Array.from({ length: 30 }, (_, i) => 2001 - i).map((year) => (
+                <option key={year} value={year}>{year}년</option>
+              ))}
+            </Select>
+            <Select 
+              name="birthMonth" 
+              value={form.birthMonth} 
+              onChange={handleChange}
+              style={{ flex: 1 }}
+            >
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                <option key={month} value={month.toString().padStart(2, '0')}>
+                  {month}월
+                </option>
+              ))}
+            </Select>
+            <Select 
+              name="birthDay" 
+              value={form.birthDay} 
+              onChange={handleChange}
+              style={{ flex: 1 }}
+            >
+              {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                <option key={day} value={day.toString().padStart(2, '0')}>
+                  {day}일
+                </option>
+              ))}
+            </Select>
+          </div>
         </Field>
 
         <Field>
@@ -146,8 +249,10 @@ export default function EditProfile() {
           </RadioGroup>
         </Field>
 
+        {error && <div style={{ color: '#e74c3c', textAlign: 'center', marginBottom: 8 }}>{error}</div>}
         <Button type="submit">수정</Button>
       </Form>
+      {showPwModal && <UpdatePassword onClose={() => setShowPwModal(false)} />}
     </Container>
   );
 }

@@ -58,14 +58,11 @@ export default function CheckPassword({ onSuccess }: CheckPasswordProps) {
     setError('');
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:8080/members/check-password', { password }, { withCredentials: true });
-      if (res.data && res.data.success) {
-        onSuccess();
-      } else {
-        setError('비밀번호가 올바르지 않습니다.');
-      }
+      await axios.post('http://localhost:8080/members/update/check-password', { password }, { withCredentials: true });
+      // 200 OK만 오면 무조건 성공 처리
+      onSuccess();
     } catch (err) {
-      setError('비밀번호 확인 중 오류가 발생했습니다.');
+      setError('비밀번호가 올바르지 않습니다.');
     } finally {
       setLoading(false);
     }
