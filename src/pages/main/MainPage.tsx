@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import styled from '@emotion/styled';
 import { FiSearch, FiPlus } from 'react-icons/fi';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import CategorySelect from '../../components/CategorySelect';
 import MainHeader from './MainHeader';
+
 
 // 더미 데이터
 const liveDebates = [
@@ -68,11 +70,215 @@ const breakpoints = {
   mobile: '@media (max-width: 768px)',
   small: '@media (max-width: 480px)',
 };
+// board
+type Board = {
+  boardId: number;
+  title: string;
+  categoryId: number;
+  state: string;  // 이게 'status' 역할을 할 수 있음
+  createdAt: string;
+  // 추가로 찬성/반대/조회수는 없으면 일단 0으로 초기화하거나 따로 로직 추가해야 함
+  agree?: 0;
+  disagree?: 0;
+  views?: 0;
+};
+
 
 const MainPage: React.FC = () => {
   // 슬라이드 인덱스 예시 (실제 구현 시 useState로 관리)
   const slideIndex = 0;
   const totalSlides = 3;
+
+  // board
+  // 토론 목록 상태
+  const [cultureDebates, setCultureDebates] = useState<Board[]>([]);
+  const [economyDebates, setEconomyDebates] = useState<Board[]>([]);
+  const [societyDebates, setSocietyDebates] = useState<Board[]>([]);
+  const [internationalDebates, setInternationalDebates] = useState<Board[]>([]);
+  const [industryDebates, setIndustryDebates] = useState<Board[]>([]);
+  const [climateDebates, setClimateDebates] = useState<Board[]>([]);
+  const [scienceDebates, setScienceDebates] = useState<Board[]>([]);
+  const [humanitiesDebates, setHumanitiesDebates] = useState<Board[]>([]);
+  const [lifeDebates, setLifeDebates] = useState<Board[]>([]);
+  
+
+  // 예시: 모든 토론 데이터를 API에서 불러온다고 가정
+  const [allDebates, setAllDebates] = useState<Board[]>([]);
+
+  const cultureCategoryIds = [101, 102, 103, 104, 105, 106];
+  const economyCategoryIds = [201, 202, 203, 204, 205];
+  const societyCategoryIds = [301, 302, 303, 304, 305];
+  const internationalCategoryIds = [401, 402, 403, 404, 405];
+  const industryCategoryIds = [501, 502, 503, 504, 505];
+  const climateCategoryIds = [601, 602, 603, 604, 605];
+  const scienceCategoryIds = [701, 702, 703, 704, 705];
+  const humanitiesCategoryIds = [801, 802, 803, 804];
+  const lifeCategoryIds = [901, 902, 903, 904, 905];
+  
+
+  // 그룹화
+  function groupDebatesByMainCategory(debates: Board[]): Record<number, Board[]> {
+    const grouped: Record<number, Board[]> = {};
+    debates.forEach(debate => {
+      const mainCategory = Math.floor(debate.categoryId / 100) * 100;
+      if (!grouped[mainCategory]) {
+        grouped[mainCategory] = [];
+      }
+      grouped[mainCategory].push(debate);
+    });
+    return grouped;
+  }
+
+  const grouped = groupDebatesByMainCategory(allDebates);
+
+  useEffect(() => {
+    async function fetchAllDebates() {
+      try {
+        const res = await fetch('http://localhost:8080/api/boards');
+        const data = await res.json();
+  
+        // category_id -> categoryId 매핑
+        const formatted = data.map((debate: any) => ({
+          ...debate,
+          categoryId: debate.category_id,
+        }));
+  
+        setAllDebates(formatted);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  
+    fetchAllDebates();
+  }, []);
+  
+  useEffect(() => {
+    if (allDebates.length === 0) return;
+  
+    setCultureDebates(allDebates.filter(debate =>
+      cultureCategoryIds.includes(debate.categoryId)
+    ));
+  
+    setEconomyDebates(allDebates.filter(debate =>
+      economyCategoryIds.includes(debate.categoryId)
+    ));
+  
+    setSocietyDebates(allDebates.filter(debate =>
+      societyCategoryIds.includes(debate.categoryId)
+    ));
+  
+    setInternationalDebates(allDebates.filter(debate =>
+      internationalCategoryIds.includes(debate.categoryId)
+    ));
+  
+    setIndustryDebates(allDebates.filter(debate =>
+      industryCategoryIds.includes(debate.categoryId)
+    ));
+  
+    setClimateDebates(allDebates.filter(debate =>
+      climateCategoryIds.includes(debate.categoryId)
+    ));
+  
+    setScienceDebates(allDebates.filter(debate =>
+      scienceCategoryIds.includes(debate.categoryId)
+    ));
+  
+    setHumanitiesDebates(allDebates.filter(debate =>
+      humanitiesCategoryIds.includes(debate.categoryId)
+    ));
+  
+    setLifeDebates(allDebates.filter(debate =>
+      lifeCategoryIds.includes(debate.categoryId)
+    ));
+  
+  }, [allDebates]);
+  
+  
+  
+  
+  const categoryMap: { [key: number]: string } = {
+    // 메인 카테고리
+    100: '문화',
+    200: '경제',
+    300: '사회',
+    400: '국제/외교',
+    500: '산업',
+    600: '기후/환경',
+    700: '과학/기술',
+    800: '인문',
+    900: '생활',
+  
+    // 문화 세부 카테고리
+    101: '대중문화/엔터테인먼트',
+    102: '문학/에세이',
+    103: '예술/디자인',
+    104: '소셜',
+    105: '연애',
+    106: '스포츠',
+  
+    // 경제 세부 카테고리
+    201: '경제 일반',
+    202: '고용/노동시장',
+    203: '금융/화폐',
+    204: '부동산/자산',
+    205: '소비/물가',
+  
+    // 사회 세부 카테고리
+    301: '사회/시사',
+    302: '정치',
+    303: '인권/복지',
+    304: '젠더/가족',
+    305: '사건·사고 및 사회현상',
+  
+    // 국제/외교 세부 카테고리
+    401: '외교/안보',
+    402: '국제 갈등/협력',
+    403: '글로벌 경제·무역',
+    404: '국제 인권/정책',
+    405: '국제기구/세계 질서',
+  
+    // 산업 세부 카테고리
+    501: '산업구조/노동',
+    502: 'IT산업/콘텐츠 산업',
+    503: '제조/중공업',
+    504: '유통/물류',
+    505: '스타트업/창업',
+  
+    // 기후/환경 세부 카테고리
+    601: '기후변화/탄소중립',
+    602: '에너지 정책',
+    603: '생태계 보호',
+    604: '환경오염',
+    605: '환경 윤리',
+  
+    // 과학/기술 세부 카테고리
+    701: '인공지능/로봇',
+    702: '생명과학/유전공학',
+    703: '정보보안/데이터',
+    704: '우주/물리/기초과학',
+    705: '일반 기술',
+  
+    // 인문 세부 카테고리
+    801: '철학',
+    802: '현대사상',
+    803: '종교',
+    804: '자기성찰·자기계발',
+  
+    // 생활 세부 카테고리
+    901: '동물',
+    902: '음식',
+    903: '여행',
+    904: '취미',
+    905: '육아',
+  };
+  
+
+// 카테고리 이름 가져오기
+function getCategoryName(categoryId: number): string {
+  return categoryMap[categoryId] || '기타';
+}
+
+  
 
   // 검색어 상태 및 라우터
   const [search, setSearch] = useState('');
@@ -87,8 +293,10 @@ const MainPage: React.FC = () => {
   };
 
   const [isCreatePopupOpen, setIsCreatePopupOpen] = useState(false);
-  const [selectedMainCategory, setSelectedMainCategory] = useState<string>('');
-  const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
+  const [selectedMainCategory, setSelectedMainCategory] = useState<number | "">("");
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [selectedSubCategory, setSelectedSubCategory] = useState<number | "">("");
   const [navHoverIndex, setNavHoverIndex] = useState<number|null>(null);
 
   const handleCreateDebate = () => {
@@ -99,10 +307,51 @@ const MainPage: React.FC = () => {
     setIsCreatePopupOpen(false);
   };
 
-  const handleCategoryChange = (mainCategory: string, subCategory: string) => {
+  const handleCreateDebateSubmit = async () => {
+    if (!title.trim() || !description.trim() || !selectedMainCategory || !selectedSubCategory) {
+      alert('모든 필드를 입력해주세요.');
+      return;
+    }
+  
+    try {
+      console.log('selectedSubCategory:', selectedSubCategory);
+      console.log('selectedMainCategory:', selectedMainCategory);
+      console.log(typeof selectedSubCategory)
+      console.log('category_id to send:', selectedSubCategory);
+
+      const response = await fetch('http://localhost:8080/api/boards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          description,
+          category_id: selectedSubCategory
+        })
+        
+      });
+      
+  
+      if (response.ok) {
+        alert('토론방이 생성되었습니다!');
+        setIsCreatePopupOpen(false); // 팝업 닫기
+        setTitle('');
+        setDescription('');
+        // TODO: 목록 갱신 또는 이동 등 처리
+      } else {
+        alert('토론방 생성 실패');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('오류가 발생했습니다.');
+    }
+  };
+  
+  const handleCategoryChange = (mainCategory: number | "", subCategory: number | "") => {
     setSelectedMainCategory(mainCategory);
     setSelectedSubCategory(subCategory);
   };
+  
+  
 
   const handleDebateClick = () => {
     navigate('/discussion');
@@ -177,11 +426,11 @@ const MainPage: React.FC = () => {
           <Section>
             <SectionTitle>문화</SectionTitle>
             <CardList>
-              {cultureDebates.map((debate, i) => (
+              {grouped[100]?.map((debate, i) => (
                 <DebateCard key={i} onClick={handleDebateClick}>
                   <CardTop>
-                    <span>{debate.category}</span>
-                    <span>{debate.status}</span>
+                  <span>{getCategoryName(debate.categoryId)}</span> 
+                  <span>{debate.state}</span> {/* state를 status로 사용 */}
                   </CardTop>
                   <CardTitle>{debate.title}</CardTitle>
                   <CardBottom>
@@ -195,11 +444,137 @@ const MainPage: React.FC = () => {
           <Section>
             <SectionTitle>경제</SectionTitle>
             <CardList>
-              {economyDebates.map((debate, i) => (
+              {grouped[200]?.map((debate, i) => (
                 <DebateCard key={i} onClick={handleDebateClick}>
                   <CardTop>
-                    <span>{debate.category}</span>
-                    <span>{debate.status}</span>
+                  <span>{getCategoryName(debate.categoryId)}</span> 
+                  <span>{debate.state}</span> {/* state를 status로 사용 */}
+                  </CardTop>
+                  <CardTitle>{debate.title}</CardTitle>
+                  <CardBottom>
+                    <span>찬성 {debate.agree}/3 | 반대 {debate.disagree}/3</span>
+                    <span>👁 {debate.views}</span>
+                  </CardBottom>
+                </DebateCard>
+              ))}
+            </CardList>
+          </Section>
+          <Section>
+            <SectionTitle>사회</SectionTitle>
+            <CardList>
+              {grouped[300]?.map((debate, i) => (
+                <DebateCard key={i} onClick={handleDebateClick}>
+                  <CardTop>
+                  <span>{getCategoryName(debate.categoryId)}</span> 
+                  <span>{debate.state}</span> {/* state를 status로 사용 */}
+                  </CardTop>
+                  <CardTitle>{debate.title}</CardTitle>
+                  <CardBottom>
+                    <span>찬성 {debate.agree}/3 | 반대 {debate.disagree}/3</span>
+                    <span>👁 {debate.views}</span>
+                  </CardBottom>
+                </DebateCard>
+              ))}
+            </CardList>
+          </Section>
+          <Section>
+            <SectionTitle>국제/외교</SectionTitle>
+            <CardList>
+              {grouped[400]?.map((debate, i) => (
+                <DebateCard key={i} onClick={handleDebateClick}>
+                  <CardTop>
+                  <span>{getCategoryName(debate.categoryId)}</span> 
+                  <span>{debate.state}</span> {/* state를 status로 사용 */}
+                  </CardTop>
+                  <CardTitle>{debate.title}</CardTitle>
+                  <CardBottom>
+                    <span>찬성 {debate.agree}/3 | 반대 {debate.disagree}/3</span>
+                    <span>👁 {debate.views}</span>
+                  </CardBottom>
+                </DebateCard>
+              ))}
+            </CardList>
+          </Section>
+          <Section>
+            <SectionTitle>산업</SectionTitle>
+            <CardList>
+              {grouped[500]?.map((debate, i) => (
+                <DebateCard key={i} onClick={handleDebateClick}>
+                  <CardTop>
+                  <span>{getCategoryName(debate.categoryId)}</span> 
+                  <span>{debate.state}</span> {/* state를 status로 사용 */}
+                  </CardTop>
+                  <CardTitle>{debate.title}</CardTitle>
+                  <CardBottom>
+                    <span>찬성 {debate.agree}/3 | 반대 {debate.disagree}/3</span>
+                    <span>👁 {debate.views}</span>
+                  </CardBottom>
+                </DebateCard>
+              ))}
+            </CardList>
+          </Section>
+          <Section>
+            <SectionTitle>기후/환경</SectionTitle>
+            <CardList>
+              {grouped[600]?.map((debate, i) => (
+                <DebateCard key={i} onClick={handleDebateClick}>
+                  <CardTop>
+                  <span>{getCategoryName(debate.categoryId)}</span> 
+                  <span>{debate.state}</span> {/* state를 status로 사용 */}
+                  </CardTop>
+                  <CardTitle>{debate.title}</CardTitle>
+                  <CardBottom>
+                    <span>찬성 {debate.agree}/3 | 반대 {debate.disagree}/3</span>
+                    <span>👁 {debate.views}</span>
+                  </CardBottom>
+                </DebateCard>
+              ))}
+            </CardList>
+          </Section>
+          <Section>
+            <SectionTitle>과학/기술</SectionTitle>
+            <CardList>
+              {grouped[700]?.map((debate, i) => (
+                <DebateCard key={i} onClick={handleDebateClick}>
+                  <CardTop>
+                  <span>{getCategoryName(debate.categoryId)}</span> 
+                  <span>{debate.state}</span> {/* state를 status로 사용 */}
+                  </CardTop>
+                  <CardTitle>{debate.title}</CardTitle>
+                  <CardBottom>
+                    <span>찬성 {debate.agree}/3 | 반대 {debate.disagree}/3</span>
+                    <span>👁 {debate.views}</span>
+                  </CardBottom>
+                </DebateCard>
+              ))}
+            </CardList>
+          </Section>
+          <Section>
+            <SectionTitle>인문</SectionTitle>
+            <CardList>
+              {grouped[800]?.map((debate, i) => (
+                <DebateCard key={i} onClick={handleDebateClick}>
+                  <CardTop>
+                  <span>{getCategoryName(debate.categoryId)}</span> 
+                  <span>{debate.state}</span> {/* state를 status로 사용 */}
+                  </CardTop>
+                  <CardTitle>{debate.title}</CardTitle>
+                  <CardBottom>
+                    <span>찬성 {debate.agree}/3 | 반대 {debate.disagree}/3</span>
+                    <span>👁 {debate.views}</span>
+                  </CardBottom>
+                </DebateCard>
+              ))}
+            </CardList>
+          </Section>
+          <Section>
+            <SectionTitle>생활</SectionTitle>
+            <CardList>
+              {grouped[900]?.map((debate, i) => (
+                <DebateCard key={i} onClick={handleDebateClick}>
+                  <CardTop>
+                  <span>{getCategoryName(debate.categoryId)}</span> 
+                  <span>{debate.state}</span> {/* state를 status로 사용 */}
                   </CardTop>
                   <CardTitle>{debate.title}</CardTitle>
                   <CardBottom>
@@ -239,7 +614,12 @@ const MainPage: React.FC = () => {
             <PopupBody>
               <FormGroup>
                 <Label>토론 제목</Label>
-                <Input placeholder="토론 제목을 입력하세요" />
+                <Input
+                  placeholder="토론 제목을 입력하세요"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+
               </FormGroup>
               <FormGroup>
                 <Label>카테고리</Label>
@@ -247,9 +627,15 @@ const MainPage: React.FC = () => {
               </FormGroup>
               <FormGroup>
                 <Label>토론 설명</Label>
-                <TextArea placeholder="토론에 대한 설명을 입력하세요" rows={10} />
+                <TextArea
+                  placeholder="토론에 대한 설명을 입력하세요"
+                  rows={10}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+
               </FormGroup>
-              <CreateButton>토론방 생성하기</CreateButton>
+              <CreateButton onClick={handleCreateDebateSubmit}>토론방 생성하기</CreateButton>
             </PopupBody>
           </PopupContent>
         </LayerPopup>

@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import { FiSearch } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import MainHeader from './MainHeader';
+import { useLocation } from 'react-router-dom';
 
 const breakpoints = {
   tablet: '@media (max-width: 1024px)',
@@ -22,7 +23,15 @@ const CARD_SHADOW = '0 2px 8px rgba(0, 122, 255, 0.06)';
 
 const SearchResultPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // 이 부분 추가
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const keyword = params.get('keyword') || '';
+    setSearch(keyword);
+  }, [location.search]);
+
   const handleSearch = () => {
     if (search.trim()) {
       navigate(`/search?keyword=${encodeURIComponent(search)}`);
