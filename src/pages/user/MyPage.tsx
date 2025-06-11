@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import DebateHistory from './DebateHistory';
 import EditProfile from './EditProfile';
 import CheckPassword from './CheckPassword';
+import SocialEditProfile from './SocialEditProfile';
 
 interface DebateType {
   id: number;
@@ -26,6 +27,7 @@ interface MemberInfo {
   level: number;
   win: number;
   lose: number;
+  type: string;
 }
 
 const Container = styled.div`
@@ -113,10 +115,10 @@ const Nav = styled.div`
   padding-bottom: 10px;
 `;
 
-const NavItem = styled.div<{active?: boolean}>`
-  font-weight: ${({active}) => (active ? 'bold' : 'normal')};
-  color: ${({active}) => (active ? '#222' : '#888')};
-  border-bottom: ${({active}) => (active ? '2px solid #222' : 'none')};
+const NavItem = styled.div<{$active?: boolean}>`
+  font-weight: ${({$active}) => ($active ? 'bold' : 'normal')};
+  color: ${({$active}) => ($active ? '#222' : '#888')};
+  border-bottom: ${({$active}) => ($active ? '2px solid #222' : 'none')};
   padding-bottom: 4px;
   cursor: pointer;
 `;
@@ -258,7 +260,24 @@ export default function MyPage() {
         const response = await axios.get('http://localhost:8080/members/me', {
           withCredentials: true
         });
-        setMemberInfo(response.data);
+        console.log('서버 응답 데이터:', response.data);
+    
+        const data = response.data;
+    
+        const member: MemberInfo = {
+          name: data.name,
+          username: data.username,
+          email: data.email,
+          gender: data.gender,
+          birthday: data.birthday,
+          score: data.score,
+          level: data.level,
+          win: data.win,
+          lose: data.lose,
+          type: data.socialType
+        };
+    
+        setMemberInfo(member);
       } catch (error) {
         console.error('사용자 정보를 가져오는데 실패했습니다:', error);
         navigate('/');
@@ -267,7 +286,11 @@ export default function MyPage() {
 
     fetchMemberInfo();
   }, [navigate]);
-
+  useEffect(() => {
+    if (memberInfo) {
+      console.log('type:', memberInfo.type); // ✅ 여기에서 찍어야 정확
+    }
+  }, [memberInfo]);
   const winRate = memberInfo
     ? (memberInfo.win + memberInfo.lose === 0
         ? '0.0'
@@ -303,16 +326,22 @@ export default function MyPage() {
             <div style={{color: "#b5c7a7", fontWeight: 700, fontSize: "1.1rem"}}>마이페이지</div>
           </Header>
           <Nav>
-            <NavItem active={tab === 'history'} onClick={() => setTab('history')}>토론내역확인</NavItem>
-            <NavItem active={tab === 'favorite'} onClick={() => setTab('favorite')}>즐겨찾기</NavItem>
-            <NavItem active={tab === 'edit'} onClick={() => { setTab('edit'); setEditAuth(false); }}>개인정보 수정</NavItem>
+            <NavItem $active={tab === 'history'} onClick={() => setTab('history')}>토론내역확인</NavItem>
+            <NavItem $active={tab === 'favorite'} onClick={() => setTab('favorite')}>즐겨찾기</NavItem>
+            <NavItem $active={tab === 'edit'} onClick={() => { setTab('edit'); setEditAuth(false); }}>개인정보 수정</NavItem>
           </Nav>
           <div style={{marginTop: 32}}>
             {tab === 'history' && <DebateHistory debates={debates} setDebates={setDebates} />}
             {tab === 'favorite' && <FavoriteList debates={debates} setDebates={setDebates} />}
-            {tab === 'edit' && (!editAuth
-              ? <CheckPassword onSuccess={() => setEditAuth(true)} />
-              : <EditProfile />
+            {tab === 'edit' && (
+              !memberInfo ? null : (
+                memberInfo.type === "NORMAL"
+                  ? (!editAuth
+                      ? <CheckPassword onSuccess={() => setEditAuth(true)} />
+                      : <EditProfile />
+                    )
+                  : <SocialEditProfile />
+              )
             )}
           </div>
           <Footer>footer</Footer>

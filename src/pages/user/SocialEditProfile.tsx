@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import { useState, useEffect } from 'react';
-import UpdatePassword from './UpdatePassword';
 import axios from 'axios';
 
 const Container = styled.div`
@@ -81,23 +80,19 @@ interface MemberInfo {
   email: string;
   gender: string;
   birthday: string;
-  score: number;
-  level: number;
-  win: number;
-  lose: number;
+  type: string;
 }
 
-export default function EditProfile() {
+export default function SocialEditProfile() {
   const [form, setForm] = useState({
     id: '',
-    email: '',
     nickname: '',
+    email: '',
     birthYear: '',
     birthMonth: '',
     birthDay: '',
     gender: '',
   });
-  const [showPwModal, setShowPwModal] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -108,16 +103,16 @@ export default function EditProfile() {
         const { name, id, email, gender, birthday } = response.data;
         
         // birthday를 yyyy-MM-dd 형식에서 분리
-        const [year, month, day] = birthday.split('-');
+        const [year, month, day] = birthday ? birthday.split('-') : ['', '', ''];
         
         setForm({
-          id:id,
-          email:email,
+          id: id,
           nickname: name,
+          email: email || '',
           birthYear: year,
           birthMonth: month,
           birthDay: day,
-          gender: gender === 'MALE' ? '남자' : '여자',
+          gender: gender || '',
         });
       } catch (err) {
         setError('회원정보를 불러오는데 실패했습니다.');
@@ -137,13 +132,15 @@ export default function EditProfile() {
     e.preventDefault();
     setError('');
     
+    if (!window.confirm('입력하신 정보로 수정하시겠습니까?')) return;
+    
     try {
       const formattedBirthday = `${form.birthYear}-${form.birthMonth.padStart(2, '0')}-${form.birthDay.padStart(2, '0')}`;
       
       await axios.patch('http://localhost:8080/members/update/change-info', {
         name: form.nickname,
         email: form.email,
-        gender: form.gender === "남자" ? "MALE" : "FEMALE",
+        gender: form.gender,
         birthday: formattedBirthday
       }, { withCredentials: true });
       
@@ -161,26 +158,16 @@ export default function EditProfile() {
     <Container>
       <Title>개인정보 수정</Title>
       <Form onSubmit={handleSubmit}>
-        <Field>
-          <Label htmlFor="id">아이디</Label>
-          <Input id="id" name="id" value={form.id} onChange={handleChange} disabled />
-        </Field>
+
 
         <Field>
-          <Label>비밀번호</Label>
-          <Button type="button" style={{ background: '#888', marginBottom: 8 }} onClick={() => setShowPwModal(true)}>
-            비밀번호 변경
-          </Button>
+          <Label htmlFor="nickname">닉네임</Label>
+          <Input id="nickname" name="nickname" value={form.nickname} onChange={handleChange} />
         </Field>
 
         <Field>
           <Label htmlFor="email">이메일 주소</Label>
           <Input id="email" name="email" type="email" value={form.email} onChange={handleChange} />
-        </Field>
-
-        <Field>
-          <Label htmlFor="nickname">닉네임</Label>
-          <Input id="nickname" name="nickname" value={form.nickname} onChange={handleChange} />
         </Field>
 
         <Field>
@@ -192,6 +179,7 @@ export default function EditProfile() {
               onChange={handleChange}
               style={{ flex: 2 }}
             >
+              <option value="">년도</option>
               {Array.from({ length: 30 }, (_, i) => 2001 - i).map((year) => (
                 <option key={year} value={year}>{year}년</option>
               ))}
@@ -202,6 +190,7 @@ export default function EditProfile() {
               onChange={handleChange}
               style={{ flex: 1 }}
             >
+              <option value="">월</option>
               {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
                 <option key={month} value={month.toString().padStart(2, '0')}>
                   {month}월
@@ -214,6 +203,7 @@ export default function EditProfile() {
               onChange={handleChange}
               style={{ flex: 1 }}
             >
+              <option value="">일</option>
               {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
                 <option key={day} value={day.toString().padStart(2, '0')}>
                   {day}일
@@ -264,7 +254,6 @@ export default function EditProfile() {
       }}>
         회원 탈퇴
       </Button>
-      {showPwModal && <UpdatePassword onClose={() => setShowPwModal(false)} />}
     </Container>
   );
-}
+} 

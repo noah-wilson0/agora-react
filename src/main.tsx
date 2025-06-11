@@ -9,7 +9,6 @@ import './index.css'
  * 타이머가 끝낫으면 입력중인 채팅은 그 상태로 메시지가 출력되게 해야됨됨
  */
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
     <App />
-  </StrictMode>,
+,
 )

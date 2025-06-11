@@ -14,6 +14,8 @@ import MyPage from './pages/user/MyPage';
 import DebateHistory from './pages/user/DebateHistory';
 import Login from './pages/user/Login';
 import SignUp from './pages/user/SignUp';
+import NaverCallback from './pages/user/oauth/NaverCallback';
+import KakaoCallback from './pages/user/oauth/KakaoCallback';
 
 const App: React.FC = () => {
   return (
@@ -31,6 +33,8 @@ const App: React.FC = () => {
             <Route path="/discussion/outcome" element={<OutcomePage />} />
             <Route path="*" element={<MainPage />} />
             <Route path="/user/login" element={<Login />} />
+            <Route path="/oauth/callback/naver" element={<NaverCallback />} />
+            <Route path="/oauth/callback/kakao" element={<KakaoCallback />} />
             <Route path="/signup" element={<SignUp />} />
             {/* /mypage 경로에서 MyPage를 표시하고, 그 안에서 DebateHistory를 중첩해서 표시 */}
             <Route path="/mypage" element={<MyPage />}>

@@ -37,6 +37,35 @@ const Login: React.FC = () => {
       alert('로그인 요청 중 오류가 발생했습니다.');
     }
   };
+  const NAVER_CLIENT_ID = import.meta.env.VITE_NAVER_CLIENT_ID;
+  const REDIRECT_URI = "http://localhost:5173/oauth/callback/naver";
+  const handleNaverLogin = () => {
+  const state = Math.random().toString(36).substring(2) + Date.now();
+  localStorage.setItem('state', state);
+  const naverAuthUrl =
+      `https://nid.naver.com/oauth2.0/authorize?response_type=code` +
+      `&client_id=${NAVER_CLIENT_ID}` +
+      `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+      `&state=${state}`;
+    window.location.href = naverAuthUrl;
+  };
+
+  const KAKAO_CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID;
+
+  console.log('✅ ENV:', import.meta.env);
+console.log('✅ VITE_KAKAO_CLIENT_ID:', import.meta.env.VITE_KAKAO_CLIENT_ID);
+console.log('✅ VITE_KAKAO_CLIENT_ID:', import.meta.env.VITE_KAKAO_CLIENT_ID);
+  const KAKAO_REDIRECT_URI = "http://localhost:5173/oauth/callback/kakao";
+  const handleKakaoLogin = () => {
+    const state = Math.random().toString(36).substring(2) + Date.now();
+    localStorage.setItem('state', state);
+    const naverAuthUrl =
+        `https://kauth.kakao.com/oauth/authorize?response_type=code` +
+        `&client_id=${KAKAO_CLIENT_ID}` +
+        `&redirect_uri=${encodeURIComponent(KAKAO_REDIRECT_URI)}` +
+        '&scope=profile_nickname';
+      window.location.href = naverAuthUrl;
+    };
 
   return (
     <LoginWrapper>
@@ -67,8 +96,8 @@ const Login: React.FC = () => {
         </Form>
         <Divider>또는</Divider>
         <SocialRow>
-          <SocialBtn style={{ background: '#2DB400', color: 'white' }}>N</SocialBtn>
-          <SocialBtn style={{ background: '#FEE500', color: '#3C1E1E' }}>카</SocialBtn>
+          <SocialBtn style={{ background: '#2DB400', color: 'white' }}onClick={handleNaverLogin}>N</SocialBtn>
+          <SocialBtn style={{ background: '#FEE500', color: '#3C1E1E' }}onClick={handleKakaoLogin}>카</SocialBtn>
         </SocialRow>
         <BottomRow>
           <BottomLink onClick={() => navigate('/find-account')}>아이디 / 비밀번호 찾기</BottomLink>
