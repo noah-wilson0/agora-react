@@ -7,6 +7,7 @@ import MainPage from './pages/main/MainPage';
 import SearchResultPage from './pages/main/SearchResultPage';
 import DebateLobby from './pages/debate/lobby/layout/DebateLobbyPage';
 import OutcomePage from './pages/debate/outcome/layout/OutcomePage';
+import ChatRoom from './pages/test/ChatRoom';
 import './App.css'
 import ArchivePage from './pages/main/ArchivePage';
 import { DebateProvider } from './contexts/debateInfoContext';
@@ -32,6 +33,8 @@ const App: React.FC = () => {
             <Route path="*" element={<MainPage />} />
             <Route path="/user/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/chat/room1" element={<ChatRoom />} />
+            <Route path="*" element={<MainPage />} />
             {/* /mypage 경로에서 MyPage를 표시하고, 그 안에서 DebateHistory를 중첩해서 표시 */}
             <Route path="/mypage" element={<MyPage />}>
               <Route path="history" element={<DebateHistory />} />
