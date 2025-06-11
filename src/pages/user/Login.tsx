@@ -28,7 +28,8 @@ const Login: React.FC = () => {
         }),
       });
       if (res.ok) {
-        // 로그인 성공: 메인으로 이동// name을 쿼리로 전달
+        // 로그인 성공: 메인으로 이동
+        navigate('/main');
       } else {
         alert('로그인 실패: 아이디 또는 비밀번호를 확인하세요.');
       }
