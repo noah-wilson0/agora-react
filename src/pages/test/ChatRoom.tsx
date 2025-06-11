@@ -3,10 +3,11 @@ import { Client } from "@stomp/stompjs";
 import axios from "axios";
 
 interface Message {
-  sender: string;
+  team: string;
+  username: string;
   chatType: string;
   message: string;
-  sentAt?: string; // 시간 필드 (옵션)
+  timestamp?: Date; // 시간 필드 (옵션)
 }
 
 interface ChatRoomProps {
@@ -71,11 +72,12 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId = 222, username = "namon" , 
       stompClientRef.current.publish({
         destination: "/pub/chat/message",
         body: JSON.stringify({
+          team: '찬성',
           roomId,
           chatType,
-          sender: username,
+          username: username,
           message: msg,
-          sentAt: new Date().toISOString(),
+          timestamp: new Date().toISOString(),
         }),
       });
       setMsg("");
@@ -88,10 +90,10 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ roomId = 222, username = "namon" , 
       <ul style={{ minHeight: 200, listStyle: "none", padding: 0 }}>
         {messages.map((m, i) => (
           <li key={i}>
-            <b>{m.sender}</b>: {m.message}
-            {m.sentAt && (
+            <b>{m.username}</b>: {m.message}
+            {m.timestamp && (
               <span style={{ color: "#999", marginLeft: 8, fontSize: 12 }}>
-                {new Date(m.sentAt).toLocaleTimeString()}
+                {new Date(m.timestamp).toLocaleTimeString()}
               </span>
             )}
           </li>

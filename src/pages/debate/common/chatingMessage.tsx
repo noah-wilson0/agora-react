@@ -6,7 +6,7 @@ export interface ChatMessage {
   team: '찬성' | '반대' | 'moderator';
   username: string;
   message: string;
-  timestamp: string;
+  timestamp: Date;
   isMe?: boolean;
 }
 
@@ -34,13 +34,14 @@ const Message: React.FC<MessageProps> = ({ team, username, message, timestamp, i
   } else {
     isRight = false;
   }
+  const formattedTimestamp = new Date(timestamp).toLocaleTimeString();
   return (
     <MessageContainer isRight={isRight} team={team}>
       <MessageContent isRight={isRight} team={team}>
         <Username isRight={isRight}>{username}</Username>
         <MessageBubble isRight={isRight} team={team} chatType={chatType} isMe={isMe}>
           {message}
-          <Timestamp isRight={isRight}>{timestamp}</Timestamp>
+          <Timestamp isRight={isRight}>{formattedTimestamp}</Timestamp>
         </MessageBubble>
       </MessageContent>
     </MessageContainer>
@@ -50,11 +51,13 @@ const Message: React.FC<MessageProps> = ({ team, username, message, timestamp, i
 const ChatingMessage: React.FC<ChatingMessageProps> = ({ messages = [], chatType }) => {
   return (
     <Container>
-      {messages.map((msg, index) => (
-        msg.team === 'moderator'
+      {messages.map((msg, index) => {
+        const { key, ...rest} = msg as any;
+        return (
+          msg.team === 'moderator'
           ? <ModeratorChat key={index} message={msg.message} />
-          : <Message key={index} {...msg} chatType={chatType} />
-      ))}
+          : <Message key={index} {...rest} chatType={chatType} />
+      )})}
     </Container>
   );
 };
@@ -95,13 +98,34 @@ const Username = styled.span<{ isRight?: boolean }>`
   cursor: default;
 `;
 
+// const MessageBubble = styled.div<{ isRight?: boolean; team: '찬성' | '반대' | 'moderator'; chatType?: ChatType; isMe?: boolean }>`
+//   position: relative;
+//   padding: 0.7rem 1rem;
+//   border-radius: 1rem;
+//   font-size: 0.95rem;
+//   line-height: 1.4;
+//   word-break: break-word;
+//   background: ${({ team, chatType, isMe }) => {
+//     if (chatType === 'debate') {
+//       if (isMe) return '#e3f2fd';
+//       if (team === '찬성') return '#e8f5e9';
+//       if (team === '반대') return '#ffebee';
+//       return '#fff';
+//     }
+//     return isMe ? '#e3f2fd' : '#f0f0f0';
+//   }};
+//   color: #222;
+//   max-width: 70%;
+//   user-select: none;
+//   cursor: default;
+// `;
+
 const MessageBubble = styled.div<{ isRight?: boolean; team: '찬성' | '반대' | 'moderator'; chatType?: ChatType; isMe?: boolean }>`
   position: relative;
   padding: 0.7rem 1rem;
   border-radius: 1rem;
   font-size: 0.95rem;
   line-height: 1.4;
-  word-break: break-word;
   background: ${({ team, chatType, isMe }) => {
     if (chatType === 'debate') {
       if (isMe) return '#e3f2fd';
@@ -112,10 +136,15 @@ const MessageBubble = styled.div<{ isRight?: boolean; team: '찬성' | '반대' 
     return isMe ? '#e3f2fd' : '#f0f0f0';
   }};
   color: #222;
-  max-width: 70%;
+  max-width: 100%;
+  min-width: 80px;
+  /* 핵심: */
+  word-break: break-word;
+  white-space: pre-line;  /* 또는 normal (줄바꿈 적용 안 할 거면) */
   user-select: none;
   cursor: default;
 `;
+
 
 const Timestamp = styled.span<{ isRight?: boolean }>`
   position: absolute;

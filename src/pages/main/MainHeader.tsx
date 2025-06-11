@@ -96,7 +96,8 @@ const MainHeader: React.FC<MainHeaderProps> = ({ nickname = '닉네임' }) => {
             {/* <AuthBtn>{nickname}</AuthBtn> */}
             <AuthBtn>로그인</AuthBtn>
             <AuthBtn>회원가입</AuthBtn>
-            <AuthBtn onClick={handleChatClick}>채팅</AuthBtn>
+            {/* 채팅 모듈 테스트 */}
+            {/* <AuthBtn onClick={handleChatClick}>채팅</AuthBtn> */}
           </AuthBox>
         </HeaderTop>
         <HeaderBottom>
