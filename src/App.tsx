@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
 import VotePage from './pages/debate/vote/layout/VotePage';
 import DiscussionRoom from './pages/debate/live/layout/DebateLivePage';
 import MainPage from './pages/main/MainPage';
@@ -37,6 +38,8 @@ const App: React.FC = () => {
             <Route path="/oauth/callback/naver" element={<NaverCallback />} />
             <Route path="/oauth/callback/kakao" element={<KakaoCallback />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/chat/room1" element={<ChatRoom />} />
+            <Route path="*" element={<MainPage />} />
             {/* /mypage 경로에서 MyPage를 표시하고, 그 안에서 DebateHistory를 중첩해서 표시 */}
             <Route path="/mypage" element={<MyPage />}>
               <Route path="history" element={<DebateHistory />} />
