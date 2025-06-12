@@ -13,12 +13,12 @@ type DebatePhase = {
 };
 
 const debatePhases: DebatePhase[] = [
-  { name: '찬성 입론', duration: 3, team: '찬성', type: '입론' },
-  { name: '반대 심문', duration: 3, team: '반대', type: '심문' },
-  { name: '반대 입론', duration: 3, team: '반대', type: '입론' },
-  { name: '찬성 심문', duration: 3, team: '찬성', type: '심문' },
-  { name: '반대 반론', duration: 3, team: '반대', type: '반론' },
-  { name: '찬성 반론', duration: 3, team: '찬성', type: '반론' },
+  { name: '찬성 입론', duration: 100, team: '찬성', type: '입론' },
+  { name: '반대 심문', duration: 100, team: '반대', type: '심문' },
+  { name: '반대 입론', duration: 100, team: '반대', type: '입론' },
+  { name: '찬성 심문', duration: 100, team: '찬성', type: '심문' },
+  { name: '반대 반론', duration: 100, team: '반대', type: '반론' },
+  { name: '찬성 반론', duration: 100, team: '찬성', type: '반론' },
 ];
 
 const DebateChatingPanel: React.FC = () => {

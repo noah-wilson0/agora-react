@@ -1,12 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
-import ChatingMessage, { ChatMessage } from './chatingMessage';
+import { Client } from '@stomp/stompjs';
+import axios from 'axios';
+import ChatingMessage from './chatingMessage';
 import teamChatIcon from '../../../assets/temChat.png';
 import openChatIcon from '../../../assets/openChat.png';
 import aiChatIcon from '../../../assets/aiChat.png';
 import ChatInputBox from './ChatInputBox';
 
 type ChatType = 'team' | 'free' | 'ai';
+type TeamType = '찬성' | '반대' | 'moderator';
+
+interface ChatMessage {
+  team: TeamType;
+  username: string;
+  message: string;
+  timestamp: Date;
+  isMe?: boolean;
+}
 
 interface StyledProps {
   isSelected: boolean;
@@ -14,16 +25,20 @@ interface StyledProps {
 
 const myUsername = '나';
 
-const initialTeamMessages: ChatMessage[] = [
-  { team: '찬성', username: '유저1', message: '팀 채팅 예시(내 메시지, 왼쪽, 상대)', timestamp: '10:01' },
-  { team: '반대', username: '유저2', message: '팀 채팅 예시(내 메시지, 왼쪽, 상대)', timestamp: '10:02' },
-  { team: '찬성', username: myUsername, message: '팀 채팅 예시(내 메시지, 오른쪽)', timestamp: '10:03', isMe: true },
-];
+// 채팅별로 방이름, 토픽명 등 만드는 함수
+const makeRoomId = (baseRoomId: string, type: ChatType) => `topic-${baseRoomId}-${type}`;
 
-const initialFreeMessages: ChatMessage[] = [
-  { team: '찬성', username: '유저3', message: '자유 채팅 예시(내 메시지, 왼쪽, 상대)', timestamp: '10:04' },
-  { team: '찬성', username: myUsername, message: '자유 채팅 예시(내 메시지, 오른쪽)', timestamp: '10:05', isMe: true },
-];
+
+// const initialTeamMessages: ChatMessage[] = [
+//   { team: '찬성', username: '유저1', message: '팀 채팅 예시(내 메시지, 왼쪽, 상대)', timestamp: '10:01' },
+//   { team: '반대', username: '유저2', message: '팀 채팅 예시(내 메시지, 왼쪽, 상대)', timestamp: '10:02' },
+//   { team: '찬성', username: myUsername, message: '팀 채팅 예시(내 메시지, 오른쪽)', timestamp: '10:03', isMe: true },
+// ];
+
+// const initialFreeMessages: ChatMessage[] = [
+//   { team: '찬성', username: '유저3', message: '자유 채팅 예시(내 메시지, 왼쪽, 상대)', timestamp: '10:04' },
+//   { team: '찬성', username: myUsername, message: '자유 채팅 예시(내 메시지, 오른쪽)', timestamp: '10:05', isMe: true },
+// ];
 
 const chatIcons: Record<ChatType, string> = {
   free: openChatIcon,
@@ -41,21 +56,41 @@ const chatTooltips: Record<ChatType, string> = chatTitles;
 
 const ALL_CHATS: ChatType[] = ['free', 'team', 'ai'];
 
-const ChatingPanel: React.FC = () => {
+const ChatingPanel: React.FC<{ baseRoomId?: string; username?: string }> = ({
+  baseRoomId = '222', // 실제는 props로 방 id 넘김
+  username = myUsername,
+  }) => {
   const [openChats, setOpenChats] = useState<ChatType[]>(['free', 'team']);
   const [heights, setHeights] = useState<number[]>([50, 50]);
   const resizingIndex = useRef<number | null>(null);
   const startY = useRef<number>(0);
   const startHeights = useRef<number[]>([]);
-  const [teamMessages, setTeamMessages] = useState<ChatMessage[]>(initialTeamMessages);
-  const [freeMessages, setFreeMessages] = useState<ChatMessage[]>(initialFreeMessages);
-  const [aiMessages, setAiMessages] = useState<ChatMessage[]>([]);
+  // const [teamMessages, setTeamMessages] = useState<ChatMessage[]>(initialTeamMessages);
+  // const [freeMessages, setFreeMessages] = useState<ChatMessage[]>(initialFreeMessages);
+  // const [aiMessages, setAiMessages] = useState<ChatMessage[]>([]);
   
   // 각 채팅창의 스크롤 ref를 위한 객체
   const scrollRefs = useRef<Record<ChatType, HTMLDivElement | null>>({
     team: null,
     free: null,
     ai: null
+  });
+
+  const [messagesMap, setMessagesMap] = useState<Record<ChatType, ChatMessage[]>>({
+    team: [],
+    free: [],
+    ai: [],
+  });
+  const [connectedMap, setConnectedMap] = useState<Record<ChatType, boolean>>({
+    team: false,
+    free: false,
+    ai: false,
+  });
+
+  const stompClients = useRef<Record<ChatType, Client | null>>({
+    team: null,
+    free: null,
+    ai: null,
   });
 
   // 닫힌 채팅창 목록
@@ -146,46 +181,133 @@ const ChatingPanel: React.FC = () => {
         scrollRef.scrollTop = scrollRef.scrollHeight;
       }
     });
-  }, [teamMessages, freeMessages, aiMessages, openChats]);
+  }, [messagesMap, openChats]);
 
-  const handleSendTeam = (msg: string) => {
-    setTeamMessages(prev => [
-      ...prev,
-      {
-        team: '찬성',
-        username: myUsername,
-        message: msg,
-        timestamp: new Date().toLocaleTimeString().slice(0,5),
-        isMe: true,
-      }
-    ]);
+  // 초기 채팅 내역 불러오기 (axios)
+  useEffect(() => {
+    openChats.forEach((type) => {
+      axios
+        .get<ChatMessage[]>('http://localhost:8080/api/chat/history', {
+          params: { roomId: baseRoomId, chatType: type, count: 50 },
+        })
+        .then((res) => {
+          console.log(`[${type}] 불러온 메시지:`, res.data);
+          setMessagesMap((prev) => ({
+            ...prev,
+            [type]: res.data.map((m) => ({
+              ...m,
+              isMe: m.username === username,
+            })),
+          }));
+        });
+    });
+  }, [baseRoomId, openChats.length]);
+
+  // const handleSendTeam = (msg: string) => {
+  //   setTeamMessages(prev => [
+  //     ...prev,
+  //     {
+  //       team: '찬성' as TeamType,
+  //       username: myUsername,
+  //       message: msg,
+  //       timestamp: new Date().toLocaleTimeString().slice(0,5),
+  //       isMe: true,
+  //     }
+  //   ]);
+  // };
+
+  // const handleSendFree = (msg: string) => {
+  //   setFreeMessages(prev => [
+  //     ...prev,
+  //     {
+  //       team: '찬성' as TeamType,
+  //       username: myUsername,
+  //       message: msg,
+  //       timestamp: new Date().toLocaleTimeString().slice(0,5),
+  //       isMe: true,
+  //     }
+  //   ]);
+  // };
+
+  // const handleSendAi = (msg: string) => {
+  //   setAiMessages(prev => [
+  //     ...prev,
+  //     {
+  //       team: '찬성' as TeamType,
+  //       username: myUsername,
+  //       message: msg,
+  //       timestamp: new Date().toLocaleTimeString().slice(0,5),
+  //       isMe: true,
+  //     }
+  //   ]);
+  // };
+
+  // WebSocket 연결 및 수신
+  useEffect(() => {
+    openChats.forEach((type) => {
+      if (stompClients.current[type]) return;
+      const wsUrl = 'ws://localhost:8080/ws-chat';
+      const client = new Client({
+        webSocketFactory: () => new WebSocket(wsUrl),
+        reconnectDelay: 5000,
+        debug: (str) => console.log(str),
+      });
+
+      client.onConnect = () => {
+        setConnectedMap((prev) => ({ ...prev, [type]: true }));
+        console.log(`[${type}] Connected!!`);
+        client.subscribe(`/sub/chat/room/${makeRoomId(baseRoomId, type)}`, (msg) => {
+          console.log(`[${type}] 메시지 수신:`, msg.body);
+          try {
+            const chatMsg = JSON.parse(msg.body);
+            setMessagesMap((prev) => ({
+              ...prev,
+              [type]: [...(prev[type] || []), { ...chatMsg, isMe: chatMsg.username === username }],
+            }));
+          } catch (err) {
+            console.error('채팅 파싱 오류', err, msg.body);
+          }
+        });
+      };
+      client.onDisconnect = () => {
+        setConnectedMap((prev) => ({ ...prev, [type]: false }));
+      };
+
+      client.activate();
+      stompClients.current[type] = client;
+
+      return () => {
+        stompClients.current[type]?.deactivate();        
+      };
+    });
+    
+  }, [baseRoomId, openChats, username]);
+
+  // 메시지 전송
+  const handleSend = (type: ChatType, msg: string) => {
+    const client = stompClients.current[type];
+    console.log('==== [채팅 전송 디버그] ====');
+    console.log('client:', client);
+    console.log('connectedMap[type]:', connectedMap[type]);
+    console.log('보낼 메시지:', msg);
+    if (client && msg && connectedMap[type]) {
+      client.publish({
+        destination: '/pub/chat/message',
+        body: JSON.stringify({
+          team: '찬성',
+          roomId: baseRoomId,
+          chatType: type,
+          username: username,
+          message: msg,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+      console.log('>> 메시지 publish 완료');
+    } else {
+      console.warn('[채팅오류] 연결 상태가 false거나 client 없음 or 메시지 없음');
+    }
   };
 
-  const handleSendFree = (msg: string) => {
-    setFreeMessages(prev => [
-      ...prev,
-      {
-        team: '찬성',
-        username: myUsername,
-        message: msg,
-        timestamp: new Date().toLocaleTimeString().slice(0,5),
-        isMe: true,
-      }
-    ]);
-  };
-
-  const handleSendAi = (msg: string) => {
-    setAiMessages(prev => [
-      ...prev,
-      {
-        team: '찬성',
-        username: myUsername,
-        message: msg,
-        timestamp: new Date().toLocaleTimeString().slice(0,5),
-        isMe: true,
-      }
-    ]);
-  };
 
   return (
     <Container>
@@ -204,7 +326,6 @@ const ChatingPanel: React.FC = () => {
       </ChatTypeSelector>
       <VerticalSplitArea id="chatting-panel-vertical">
         {openChats.map((type, i) => {
-          const messages = type === 'team' ? teamMessages : type === 'free' ? freeMessages : aiMessages;
           return (
             <React.Fragment key={type}>
               <ChatBox style={{ height: `calc(${heights[i]}% - ${(openChats.length-1)*8/openChats.length}px)` }}>
@@ -217,18 +338,16 @@ const ChatingPanel: React.FC = () => {
                 </ChatBoxHeader>
                 <ChatContainer ref={el => scrollRefs.current[type] = el}>
                   {type === 'team' && (
-                    <ChatingMessage messages={teamMessages} chatType="team" />
+                    <ChatingMessage messages={messagesMap.team} chatType="team" />
                   )}
                   {type === 'free' && (
-                    <ChatingMessage messages={freeMessages} chatType="free" />
+                    <ChatingMessage messages={messagesMap.free} chatType="free" />
                   )}
                   {type === 'ai' && (
-                    <ChatingMessage messages={aiMessages} chatType="ai" />
+                    <ChatingMessage messages={messagesMap.ai} chatType="ai" />
                   )}
                 </ChatContainer>
-                {type === 'team' && <ChatInputBox onSend={handleSendTeam} />}
-                {type === 'free' && <ChatInputBox onSend={handleSendFree} />}
-                {type === 'ai' && <ChatInputBox onSend={handleSendAi} />}
+                <ChatInputBox onSend={(msg) => handleSend(type, msg)} />
               </ChatBox>
               {i < openChats.length - 1 && (
                 <ResizerBar onMouseDown={(e) => onResizerMouseDown(i, e)} />

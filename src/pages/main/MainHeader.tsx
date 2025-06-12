@@ -70,7 +70,9 @@ const MainHeader: React.FC<MainHeaderProps> = ({ nickname = '닉네임' }) => {
   const handleArchiveClick = () => {
     navigate('/archive');
   };
-
+  const handleChatClick = () => {
+    navigate('/chat/room1');
+  };
   const [navHoverIndex, setNavHoverIndex] = useState<number|null>(null);
 
   return (
