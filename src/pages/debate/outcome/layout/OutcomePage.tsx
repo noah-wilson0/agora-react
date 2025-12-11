@@ -14,17 +14,22 @@ const proScore = 200;
 const conScore = 100;
 const resultText = '투표 결과!\n총 투표 000표\n찬성 00표 반대 00표\n찬성측 승리!!';
 
+interface LocationState {
+  voteResult: {
+    pro: number;
+    con: number;
+    winner: string;
+  };
+  proSummary: string;
+  conSummary: string;
+}
+
 const OutcomePage: React.FC = () => {
   const location = useLocation();
-  const { voteResult } = location.state as {
-    voteResult: {
-      pro: number;
-      con: number;
-      winner: string;
-    };
-  } || {
-    voteResult: { pro: 0, con: 0, winner: 'none' }
-  };
+
+  // 2. navigate로 넘겨준 데이터 꺼내기
+  const state = location.state as LocationState;
+  const { voteResult, proSummary, conSummary } = state;
 
   console.log('전달받은 투표 결과:', voteResult);
   const handleReplay = () => alert('토론 다시보기');
